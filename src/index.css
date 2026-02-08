@@ -1,0 +1,704 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import './styles/ios-glass.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.48);
+        --glass-border: rgba(255, 255, 255, 0.6);
+        --glass-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.35);
+        --glass-highlight: rgba(255, 255, 255, 0.7);
+        --glass-tint: rgba(14, 165, 233, 0.08);
+        --blue-base-50: #eff9ff;
+        --blue-base-100: #dcf2ff;
+        --blue-base-200: #c1eaff;
+        --blue-base-300: #99dcff;
+        --blue-base-500: #22b7ff;
+        --blue-base-700: #0c6ca6;
+        --blue-deep: #083b5f;
+        --blue-ambient-a: rgba(34, 183, 255, 0.28);
+        --blue-ambient-b: rgba(56, 189, 248, 0.24);
+        --blue-ambient-c: rgba(12, 108, 166, 0.2);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        color: #0f172a;
+        background:
+            radial-gradient(140% 95% at 4% 0%, rgba(147, 230, 255, 0.52) 0%, rgba(147, 230, 255, 0) 62%),
+            radial-gradient(120% 90% at 96% 8%, rgba(34, 183, 255, 0.32) 0%, rgba(34, 183, 255, 0) 66%),
+            radial-gradient(100% 90% at 52% 100%, rgba(12, 108, 166, 0.25) 0%, rgba(12, 108, 166, 0) 70%),
+            linear-gradient(148deg, var(--blue-base-50) 0%, #f6fbff 38%, #eaf6ff 64%, #e3f2ff 100%);
+        background-attachment: fixed;
+        font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    .font-display {
+        font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+    }
+}
+
+@layer components {
+    .app-background {
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+        background:
+            radial-gradient(120% 100% at 8% 2%, var(--blue-ambient-a) 0%, rgba(34, 183, 255, 0) 62%),
+            radial-gradient(110% 90% at 94% 12%, var(--blue-ambient-b) 0%, rgba(56, 189, 248, 0) 64%),
+            radial-gradient(100% 100% at 50% 100%, var(--blue-ambient-c) 0%, rgba(12, 108, 166, 0) 68%),
+            linear-gradient(152deg, #eefaff 0%, #f7fbff 42%, #e9f6ff 68%, #e4f2ff 100%);
+        background-size: 170% 170%, 180% 180%, 170% 170%, 100% 100%;
+        animation: blueBackdropShift 30s ease-in-out infinite alternate;
+    }
+
+    .app-background::before {
+        content: '';
+        position: absolute;
+        inset: -24%;
+        z-index: 0;
+        pointer-events: none;
+        background:
+            conic-gradient(from 120deg at 40% 50%,
+                rgba(34, 183, 255, 0.18),
+                rgba(125, 211, 252, 0.04),
+                rgba(12, 108, 166, 0.2),
+                rgba(34, 183, 255, 0.18));
+        filter: blur(48px) saturate(115%);
+        opacity: 0.7;
+        animation: auroraDrift 34s linear infinite;
+    }
+
+    .app-background::after {
+        content: '';
+        position: absolute;
+        inset: -18%;
+        z-index: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(44% 36% at 22% 24%, rgba(147, 230, 255, 0.42), transparent 74%),
+            radial-gradient(38% 34% at 80% 22%, rgba(56, 189, 248, 0.34), transparent 72%),
+            radial-gradient(46% 44% at 58% 78%, rgba(12, 108, 166, 0.3), transparent 72%);
+        filter: blur(42px);
+        opacity: 0.42;
+        animation: meshPulse 22s ease-in-out infinite;
+    }
+
+    .three-backdrop {
+        position: absolute;
+        inset: -12%;
+        z-index: 0;
+        width: 120%;
+        height: 120%;
+        opacity: 0.35;
+        pointer-events: none;
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+
+    .three-backdrop-container {
+        position: absolute;
+        inset: -12%;
+        z-index: 0;
+        width: 120%;
+        height: 120%;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .three-backdrop-placeholder {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.08), transparent 70%);
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    .orb {
+        position: absolute;
+        z-index: 0;
+        border-radius: 9999px;
+        filter: blur(12px) saturate(120%);
+        opacity: 0.6;
+        pointer-events: none;
+        mix-blend-mode: screen;
+        animation: float 28s ease-in-out infinite, orbPulse 9s ease-in-out infinite;
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+
+    .orb-a {
+        top: -80px;
+        left: -70px;
+        width: 260px;
+        height: 260px;
+        background:
+            radial-gradient(circle at 32% 28%, rgba(125, 211, 252, 0.58), rgba(14, 165, 233, 0.18) 55%, rgba(14, 116, 144, 0) 80%);
+        animation-duration: 28s;
+    }
+
+    .orb-b {
+        top: 32%;
+        right: -90px;
+        width: 280px;
+        height: 280px;
+        background:
+            radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.62), rgba(14, 165, 233, 0.22) 56%, rgba(12, 108, 166, 0) 82%);
+        animation-duration: 32s;
+        animation-delay: -10s;
+    }
+
+    .orb-c {
+        bottom: -120px;
+        left: 35%;
+        width: 340px;
+        height: 340px;
+        background:
+            radial-gradient(circle at 42% 40%, rgba(147, 230, 255, 0.62), rgba(34, 183, 255, 0.2) 55%, rgba(12, 108, 166, 0) 82%);
+        animation-duration: 30s;
+        animation-delay: -18s;
+    }
+
+    .glass-surface {
+        position: relative;
+        border: 1px solid var(--glass-border);
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.45) 60%, rgba(255, 255, 255, 0.18) 100%),
+            radial-gradient(circle at 12% 15%, rgba(255, 255, 255, 0.45), transparent 60%),
+            var(--glass-bg);
+        box-shadow: var(--glass-shadow);
+        backdrop-filter: blur(18px) saturate(130%);
+        -webkit-backdrop-filter: blur(18px) saturate(130%);
+        overflow: hidden;
+        isolation: isolate;
+        transform-style: preserve-3d;
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+
+    .glass-surface::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        background:
+            radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.6), transparent 55%),
+            radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.4), transparent 50%),
+            linear-gradient(120deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0.18));
+        opacity: 0.38;
+    }
+
+    .glass-surface::after {
+        content: '';
+        position: absolute;
+        inset: 1px;
+        z-index: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background: linear-gradient(140deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.05) 55%, rgba(255, 255, 255, 0.2));
+        opacity: 0.25;
+    }
+
+    .glass-surface>* {
+        position: relative;
+        z-index: 1;
+    }
+
+    .ios-sidebar-shell {
+        border-color: rgba(255, 255, 255, 0.8);
+        background:
+            linear-gradient(162deg,
+                rgba(255, 255, 255, 0.86) 0%,
+                rgba(242, 250, 255, 0.74) 34%,
+                rgba(225, 243, 255, 0.56) 66%,
+                rgba(196, 230, 255, 0.44) 100%);
+        backdrop-filter: blur(36px) saturate(205%) brightness(1.08);
+        -webkit-backdrop-filter: blur(36px) saturate(205%) brightness(1.08);
+        box-shadow:
+            0 26px 70px -44px rgba(8, 47, 73, 0.52),
+            0 10px 24px -16px rgba(14, 116, 144, 0.34),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.28);
+    }
+
+    .ios-sidebar-shell::before {
+        background:
+            linear-gradient(118deg,
+                rgba(255, 255, 255, 0.64) 0%,
+                rgba(255, 255, 255, 0.16) 42%,
+                rgba(186, 230, 253, 0.34) 66%,
+                rgba(255, 255, 255, 0.4) 100%),
+            url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.35'/%3E%3C/svg%3E");
+        background-size: 180% 180%, auto;
+        opacity: 0.46;
+        animation: iosSidebarSheen 16s linear infinite;
+    }
+
+    .ios-sidebar-shell::after {
+        inset: 1px;
+        background:
+            linear-gradient(138deg,
+                rgba(255, 255, 255, 0.44),
+                rgba(255, 255, 255, 0.08) 45%,
+                rgba(125, 211, 252, 0.2) 74%,
+                rgba(255, 255, 255, 0.3));
+        opacity: 0.34;
+        border-radius: inherit;
+    }
+
+    .ios-sidebar-head {
+        transform-style: preserve-3d;
+    }
+
+    .ios-sidebar-logo-chip {
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.46);
+        background:
+            linear-gradient(154deg,
+                rgba(6, 182, 212, 0.98) 0%,
+                rgba(14, 165, 233, 0.92) 54%,
+                rgba(12, 108, 166, 0.88) 100%);
+        box-shadow:
+            0 14px 26px -16px rgba(14, 116, 144, 0.78),
+            inset 0 1px 0 rgba(255, 255, 255, 0.45),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+        transform: translateZ(24px);
+    }
+
+    .ios-sidebar-logo-chip::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background: linear-gradient(132deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.08) 54%, rgba(255, 255, 255, 0.3));
+        mix-blend-mode: screen;
+        opacity: 0.66;
+    }
+
+    .ios-sidebar-nav-link {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        padding: 0.72rem 0.9rem;
+        color: #1e293b;
+        font-size: 0.92rem;
+        font-weight: 500;
+        overflow: hidden;
+        background:
+            linear-gradient(126deg,
+                rgba(255, 255, 255, 0.7) 0%,
+                rgba(245, 251, 255, 0.46) 52%,
+                rgba(219, 239, 255, 0.36) 100%);
+        backdrop-filter: blur(24px) saturate(185%) brightness(1.06);
+        -webkit-backdrop-filter: blur(24px) saturate(185%) brightness(1.06);
+        box-shadow:
+            0 12px 24px -22px rgba(8, 47, 73, 0.62),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition: transform 220ms cubic-bezier(0.25, 0.1, 0.25, 1), border-color 220ms ease, box-shadow 220ms ease, color 220ms ease;
+    }
+
+    .ios-sidebar-nav-link::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        background: linear-gradient(118deg, rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0.08) 42%, rgba(186, 230, 253, 0.36));
+        opacity: 0.44;
+        transition: opacity 220ms ease;
+    }
+
+    .ios-sidebar-nav-link:hover {
+        transform: translateY(-1px) scale(1.008);
+        border-color: rgba(255, 255, 255, 0.82);
+        box-shadow:
+            0 14px 28px -22px rgba(8, 47, 73, 0.7),
+            inset 0 1px 0 rgba(255, 255, 255, 0.86),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.22);
+    }
+
+    .ios-sidebar-nav-link:hover::before {
+        opacity: 0.56;
+    }
+
+    .ios-sidebar-nav-link.active {
+        border-color: rgba(56, 189, 248, 0.62);
+        background:
+            linear-gradient(130deg,
+                rgba(236, 250, 255, 0.96) 0%,
+                rgba(211, 241, 255, 0.74) 44%,
+                rgba(186, 230, 253, 0.58) 100%);
+        color: #0b2442;
+        box-shadow:
+            0 16px 30px -20px rgba(14, 116, 144, 0.54),
+            inset 0 1px 0 rgba(255, 255, 255, 0.92),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.2),
+            0 0 0 1px rgba(186, 230, 253, 0.58);
+    }
+
+    .ios-sidebar-nav-link.active::before {
+        opacity: 0.72;
+        animation: iosSidebarSheen 9s linear infinite;
+    }
+
+    .ios-sidebar-nav-link.active svg {
+        color: #0369a1;
+    }
+
+    .ios-sidebar-focus {
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.66);
+        background:
+            linear-gradient(136deg,
+                rgba(255, 255, 255, 0.74) 0%,
+                rgba(242, 250, 255, 0.52) 46%,
+                rgba(219, 239, 255, 0.34) 100%);
+        backdrop-filter: blur(30px) saturate(175%) brightness(1.06);
+        -webkit-backdrop-filter: blur(30px) saturate(175%) brightness(1.06);
+        box-shadow:
+            0 18px 36px -28px rgba(8, 47, 73, 0.62),
+            inset 0 1px 0 rgba(255, 255, 255, 0.84),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.18);
+        overflow: hidden;
+        transform-style: preserve-3d;
+    }
+
+    .ios-sidebar-focus::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(120% 86% at 0% 0%, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0) 58%),
+            linear-gradient(116deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.08) 42%, rgba(125, 211, 252, 0.24));
+        opacity: 0.48;
+    }
+
+    .ios-sidebar-focus>* {
+        position: relative;
+        z-index: 1;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border-radius: 0.9rem;
+        border: 1px solid transparent;
+        padding: 0.62rem 0.8rem;
+        color: #334155;
+        font-size: 0.92rem;
+        font-weight: 500;
+        transition: all 160ms ease;
+        backdrop-filter: blur(14px) saturate(140%);
+    }
+
+    .nav-link:hover {
+        border-color: rgba(255, 255, 255, 0.75);
+        background: rgba(255, 255, 255, 0.48);
+        color: #0f172a;
+    }
+
+    .nav-link.active {
+        border-color: rgba(6, 182, 212, 0.4);
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(14, 165, 233, 0.16));
+        color: #0f172a;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.58);
+    }
+
+    .glass-input {
+        width: 100%;
+        border-radius: 0.85rem;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.68);
+        color: #0f172a;
+        font-size: 0.92rem;
+        line-height: 1.1rem;
+        padding: 0.62rem 0.78rem;
+        transition: all 160ms ease;
+        backdrop-filter: blur(10px) saturate(135%);
+    }
+
+    .glass-input::placeholder {
+        color: #64748b;
+    }
+
+    .glass-input:focus {
+        border-color: rgba(8, 145, 178, 0.5);
+        box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.12);
+        outline: none;
+    }
+
+    .glass-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.85rem;
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.55));
+        color: #0f172a;
+        padding: 0.58rem 0.95rem;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+        backdrop-filter: blur(10px) saturate(135%);
+    }
+
+    .glass-button:hover {
+        transform: translateY(-1px);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.64));
+        box-shadow: 0 10px 24px -22px rgba(15, 23, 42, 0.6);
+    }
+
+    .glass-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .hover-lift {
+        transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-2px) perspective(900px) rotateX(1.2deg) rotateY(-1.2deg);
+        box-shadow: 0 18px 32px -28px rgba(15, 23, 42, 0.4);
+    }
+
+    .glass-depth {
+        transform-style: preserve-3d;
+    }
+
+    .render-optimized {
+        content-visibility: auto;
+        contain-intrinsic-size: 1px 520px;
+        contain: layout style paint;
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate3d(20px, -18px, 0) scale(1.08);
+    }
+
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@keyframes orbPulse {
+
+    0%,
+    100% {
+        opacity: 0.56;
+    }
+
+    50% {
+        opacity: 0.74;
+    }
+}
+
+@keyframes blueBackdropShift {
+    0% {
+        background-position: 0% 0%, 100% 0%, 60% 100%, 50% 50%;
+    }
+
+    50% {
+        background-position: 18% 12%, 76% 20%, 42% 88%, 50% 50%;
+    }
+
+    100% {
+        background-position: 32% 24%, 58% 32%, 30% 76%, 50% 50%;
+    }
+}
+
+@keyframes auroraDrift {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(1.08);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+@keyframes meshPulse {
+
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+        opacity: 0.36;
+    }
+
+    50% {
+        transform: translate3d(1.8%, -1.4%, 0) scale(1.06);
+        opacity: 0.52;
+    }
+}
+
+@keyframes iosSidebarSheen {
+    0% {
+        background-position: 0% 0%, center;
+    }
+
+    100% {
+        background-position: 180% 0%, center;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .orb-a,
+    .orb-b,
+    .orb-c {
+        filter: blur(12px);
+        opacity: 0.48;
+    }
+
+    .app-background::before,
+    .app-background::after {
+        opacity: 0.32;
+    }
+
+    .app-background {
+        animation-duration: 48s;
+    }
+
+    .app-background::before {
+        filter: blur(36px) saturate(108%);
+        animation-duration: 46s;
+    }
+
+    .app-background::after {
+        filter: blur(28px);
+        animation-duration: 28s;
+    }
+
+    .ios-sidebar-shell {
+        backdrop-filter: blur(28px) saturate(185%) brightness(1.06);
+        -webkit-backdrop-filter: blur(28px) saturate(185%) brightness(1.06);
+    }
+
+    .ios-sidebar-nav-link {
+        padding: 0.68rem 0.82rem;
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .orb {
+        mix-blend-mode: normal;
+        opacity: 0.48;
+    }
+
+    .ios-sidebar-nav-link:hover {
+        transform: none;
+        border-color: rgba(255, 255, 255, 0.6);
+        box-shadow:
+            0 12px 24px -22px rgba(8, 47, 73, 0.62),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .ios-sidebar-nav-link:active {
+        transform: scale(0.988);
+        border-color: rgba(125, 211, 252, 0.7);
+        box-shadow:
+            0 12px 24px -20px rgba(8, 47, 73, 0.56),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.24);
+    }
+
+    .ios-sidebar-nav-link:active::before {
+        opacity: 0.72;
+    }
+
+    .ios-sidebar-logo-chip {
+        transition: transform 180ms ease;
+    }
+
+    .ios-sidebar-logo-chip:active {
+        transform: translateZ(18px) scale(0.96);
+    }
+}
+
+@media (max-width: 1024px) {
+    .three-backdrop {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-background {
+        animation: none;
+    }
+
+    .app-background::before,
+    .app-background::after {
+        animation: none;
+    }
+
+    .orb {
+        animation: none;
+    }
+
+    .hover-lift {
+        transition: none;
+    }
+
+    .hover-lift:hover {
+        transform: none;
+        box-shadow: var(--glass-shadow);
+    }
+
+    .render-optimized {
+        content-visibility: visible;
+        contain-intrinsic-size: auto;
+    }
+
+    .ios-sidebar-shell::before,
+    .ios-sidebar-nav-link.active::before {
+        animation: none;
+    }
+}
