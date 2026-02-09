@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion, useScroll, useTransform, useSpring, useReducedMotion } from 'framer-motion';
 
 /**
@@ -124,14 +125,13 @@ export const useScrollAnimation = (inputRange, outputRange) => {
 // Magnetic button effect
 export const useMagneticButton = (strength = 20) => {
     const shouldReduceMotion = useReducedMotion();
-
-    if (shouldReduceMotion) {
-        return { x: 0, y: 0 };
-    }
+    const springConfig = shouldReduceMotion
+        ? { stiffness: 0, damping: 100 }
+        : { stiffness: Math.max(120, strength * 7.5), damping: 15 };
 
     return {
-        x: useSpring(0, { stiffness: 150, damping: 15 }),
-        y: useSpring(0, { stiffness: 150, damping: 15 })
+        x: useSpring(0, springConfig),
+        y: useSpring(0, springConfig)
     };
 };
 
@@ -204,15 +204,18 @@ export const shimmerVariants = {
 };
 
 // Get motion props with accessibility support
-export const getMotionProps = (variants = fadeUpVariants, initial = 'hidden', animate = 'visible') => {
-    const shouldReduceMotion = useReducedMotion();
-
+export const getMotionProps = (variants = fadeUpVariants, initial = 'hidden', animate = 'visible', shouldReduceMotion = false) => {
     return {
         variants,
         initial: shouldReduceMotion ? 'visible' : initial,
         animate,
         viewport: { once: true, amount: 0.2 }
     };
+};
+
+export const useMotionProps = (variants = fadeUpVariants, initial = 'hidden', animate = 'visible') => {
+    const shouldReduceMotion = useReducedMotion();
+    return getMotionProps(variants, initial, animate, shouldReduceMotion);
 };
 
 // Optimized motion component for better performance
@@ -252,5 +255,6 @@ export default {
     pulseVariants,
     shimmerVariants,
     getMotionProps,
+    useMotionProps,
     OptimizedMotion
 };

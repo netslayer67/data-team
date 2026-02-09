@@ -1,11 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { Suspense, lazy, useMemo } from 'react';
 import { Sparkles } from 'lucide-react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import KpiCard from '../components/KpiCard';
-import RoleDistributionChart from '../components/RoleDistributionChart';
-import EmploymentTypeChart from '../components/EmploymentTypeChart';
+
+const RoleDistributionChart = lazy(() => import('../components/RoleDistributionChart'));
+const EmploymentTypeChart = lazy(() => import('../components/EmploymentTypeChart'));
 import { getEmployeesHierarchy, getSchoolOverview } from '../../../data/schoolData';
 import { ScrollDepth3D } from '../../../components/ParallaxSection';
+import { InteractiveKpiCard } from '../../../components/InteractiveCard';
 
 const formatter = new Intl.NumberFormat('en-US');
 
@@ -77,7 +78,7 @@ const SchoolOverviewPage = () => {
 
     return (
         <div className="space-y-5">
-            <ScrollDepth3D intensity={6} depth={8} className="render-optimized">
+            <ScrollDepth3D intensity={6} depth={8} drift={8} className="render-optimized">
                 <motion.section
                     className="glass-surface rounded-3xl p-5 md:p-6"
                     style={{ y: headerY }}
@@ -104,7 +105,7 @@ const SchoolOverviewPage = () => {
                 </motion.section>
             </ScrollDepth3D>
 
-            <ScrollDepth3D intensity={7} depth={10} className="render-optimized">
+            <ScrollDepth3D intensity={7} depth={10} drift={-10} className="render-optimized">
                 <motion.section
                     className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
                     variants={stagger}
@@ -114,7 +115,7 @@ const SchoolOverviewPage = () => {
                 >
                     {metrics.map((item, index) => (
                         <motion.div key={item.label} variants={fadeUp}>
-                            <KpiCard
+                            <InteractiveKpiCard
                                 label={item.label}
                                 value={item.value}
                                 hint={item.hint}
@@ -126,7 +127,7 @@ const SchoolOverviewPage = () => {
                 </motion.section>
             </ScrollDepth3D>
 
-            <ScrollDepth3D intensity={7} depth={10} className="render-optimized">
+            <ScrollDepth3D intensity={7} depth={10} drift={12} className="render-optimized">
                 <motion.section
                     className="grid grid-cols-1 gap-5 xl:grid-cols-2"
                     variants={stagger}
@@ -135,15 +136,19 @@ const SchoolOverviewPage = () => {
                     viewport={{ once: true, amount: 0.25 }}
                 >
                     <motion.div variants={fadeUp}>
-                        <RoleDistributionChart data={overview?.byRole || []} />
+                        <Suspense fallback={<section className="glass-surface rounded-3xl p-5 h-[280px]" />}>
+                            <RoleDistributionChart data={overview?.byRole || []} />
+                        </Suspense>
                     </motion.div>
                     <motion.div variants={fadeUp}>
-                        <EmploymentTypeChart data={overview?.byEmploymentType || []} />
+                        <Suspense fallback={<section className="glass-surface rounded-3xl p-5 h-[280px]" />}>
+                            <EmploymentTypeChart data={overview?.byEmploymentType || []} />
+                        </Suspense>
                     </motion.div>
                 </motion.section>
             </ScrollDepth3D>
 
-            <ScrollDepth3D intensity={8} depth={12} className="render-optimized">
+            <ScrollDepth3D intensity={8} depth={12} drift={14} className="render-optimized">
                 <motion.section
                     className="grid grid-cols-1 gap-5 xl:grid-cols-2"
                     variants={stagger}

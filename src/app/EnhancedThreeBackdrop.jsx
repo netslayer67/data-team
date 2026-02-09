@@ -13,9 +13,11 @@ const EnhancedThreeBackdrop = () => {
     const cameraRef = useRef(null);
     const rendererRef = useRef(null);
     const meshRef = useRef(null);
+    const ringRef = useRef(null);
     const particlesRef = useRef(null);
     const frameIdRef = useRef(null);
     const resizeObserverRef = useRef(null);
+    const visibilityHandlerRef = useRef(null);
     const disposedRef = useRef(false);
     const lastScrollYRef = useRef(0);
 
@@ -49,7 +51,8 @@ const EnhancedThreeBackdrop = () => {
 
     // Initialize Three.js scene
     useEffect(() => {
-        if (!isVisible || !shouldRender3D() || disposedRef.current) return;
+        disposedRef.current = false;
+        if (!isVisible || !shouldRender3D()) return;
 
         let mounted = true;
 
@@ -103,6 +106,20 @@ const EnhancedThreeBackdrop = () => {
                 scene.add(mesh);
                 meshRef.current = mesh;
 
+                // Secondary ring for richer 3D scroll response
+                const ringGeometry = new THREE.TorusGeometry(3.4, 0.05, 10, 56);
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: '#7dd3fc',
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.11
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.rotation.x = 1.08;
+                ring.rotation.y = 0.28;
+                scene.add(ring);
+                ringRef.current = ring;
+
                 // Create particle system for depth effect
                 const particlesGeometry = new THREE.BufferGeometry();
                 const particleCount = 150;
@@ -152,6 +169,10 @@ const EnhancedThreeBackdrop = () => {
 
                 const animate = (currentTime) => {
                     if (disposedRef.current || !mounted) return;
+                    if (document.hidden) {
+                        frameIdRef.current = null;
+                        return;
+                    }
 
                     frameIdRef.current = requestAnimationFrame(animate);
 
@@ -167,23 +188,44 @@ const EnhancedThreeBackdrop = () => {
                     const smoothScroll = lastScrollYRef.current + (scrollProgress - lastScrollYRef.current) * 0.1;
                     lastScrollYRef.current = smoothScroll;
 
-                    // Rotate mesh based on scroll and time
+                    const t = currentTime * 0.001;
+
+                    // Rotate mesh based on scroll + subtle breathing for less monotony
                     if (mesh) {
                         mesh.rotation.y += 0.0008 + smoothScroll * 0.002;
-                        mesh.rotation.x += 0.0005 + smoothScroll * 0.001;
-                        mesh.scale.setScalar(1 + smoothScroll * 0.2);
+                        mesh.rotation.x += 0.00045 + smoothScroll * 0.0012;
+                        mesh.position.y = Math.sin(t * 0.55) * 0.12 + smoothScroll * 0.55;
+                        mesh.scale.setScalar(1 + smoothScroll * 0.22 + Math.sin(t * 0.8) * 0.02);
                     }
 
-                    // Animate particles
+                    // Counter-rotation ring creates layered depth motion
+                    if (ring) {
+                        ring.rotation.z -= 0.0007 + smoothScroll * 0.0018;
+                        ring.rotation.y += 0.00045;
+                        ring.position.y = -0.1 + Math.cos(t * 0.4) * 0.14 + smoothScroll * 0.2;
+                        ring.scale.setScalar(1 + smoothScroll * 0.1);
+                    }
+
+                    // Particle swirl + gentle drift
                     if (particles) {
-                        particles.rotation.y -= 0.0003;
-                        particles.position.y = smoothScroll * 2;
+                        particles.rotation.y -= 0.00035;
+                        particles.rotation.x = Math.sin(t * 0.22) * 0.08;
+                        particles.position.y = smoothScroll * 2.2;
+                        particles.position.x = Math.sin(t * 0.35) * 0.3;
                     }
 
                     renderer.render(scene, camera);
                 };
 
                 animate(0);
+
+                const handleVisibility = () => {
+                    if (!document.hidden && !disposedRef.current && !frameIdRef.current) {
+                        frameIdRef.current = requestAnimationFrame(animate);
+                    }
+                };
+                visibilityHandlerRef.current = handleVisibility;
+                document.addEventListener('visibilitychange', handleVisibility);
                 setIsLoaded(true);
 
             } catch (error) {
@@ -205,6 +247,11 @@ const EnhancedThreeBackdrop = () => {
                 resizeObserverRef.current.disconnect();
             }
 
+            if (visibilityHandlerRef.current) {
+                document.removeEventListener('visibilitychange', visibilityHandlerRef.current);
+                visibilityHandlerRef.current = null;
+            }
+
             // Clean up Three.js resources
             if (rendererRef.current) {
                 rendererRef.current.dispose();
@@ -213,12 +260,25 @@ const EnhancedThreeBackdrop = () => {
                 if (meshRef.current.geometry) meshRef.current.geometry.dispose();
                 if (meshRef.current.material) meshRef.current.material.dispose();
             }
+            if (ringRef.current) {
+                if (ringRef.current.geometry) ringRef.current.geometry.dispose();
+                if (ringRef.current.material) ringRef.current.material.dispose();
+            }
             if (particlesRef.current) {
                 if (particlesRef.current.geometry) particlesRef.current.geometry.dispose();
                 if (particlesRef.current.material) particlesRef.current.material.dispose();
             }
+
+            sceneRef.current = null;
+            cameraRef.current = null;
+            rendererRef.current = null;
+            meshRef.current = null;
+            ringRef.current = null;
+            particlesRef.current = null;
+            frameIdRef.current = null;
+            resizeObserverRef.current = null;
         };
-    }, [isVisible, scrollY]);
+    }, [isVisible, scrollY, shouldRender3D]);
 
     // Don't render if 3D is disabled
     if (!shouldRender3D()) {

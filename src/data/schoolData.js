@@ -534,5 +534,30 @@ export const getSchoolFilters = () => ({
     employmentTypes: uniqueSorted(employees.map((employee) => employee.employmentType), EMPLOYMENT_ORDER)
 });
 
+export const getEmployeeById = (employeeId) => {
+    if (!employeeId) return null;
+    return employees.find((employee) => employee._id === employeeId) || null;
+};
+
+export const getRelatedEmployees = (employeeId, limit = 6) => {
+    const current = getEmployeeById(employeeId);
+    if (!current) return [];
+
+    const sameRole = employees.filter((employee) => employee._id !== employeeId && employee.roleGroup === current.roleGroup);
+    const sameUnit = employees.filter((employee) => employee._id !== employeeId && employee.unit === current.unit);
+    const others = employees.filter((employee) => employee._id !== employeeId);
+
+    const unique = [];
+    const seen = new Set();
+    [...sameRole, ...sameUnit, ...others].forEach((employee) => {
+        if (!seen.has(employee._id) && unique.length < limit) {
+            seen.add(employee._id);
+            unique.push(employee);
+        }
+    });
+
+    return unique;
+};
+
 export { employees, ROLE_GROUP_ORDER };
 

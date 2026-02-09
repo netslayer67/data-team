@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from 'framer-motion';
 import { Home, Users, Settings, Bell, Search } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { isRouteActive } from '../utils/navigation';
 
 /**
  * iOS-style Floating Button Bar
@@ -20,6 +21,8 @@ const FloatingBar = () => {
     const tickingRef = useRef(false);
     const actionTimerRef = useRef(null);
     const touchRippleTimerRef = useRef(null);
+    const barRef = useRef(null);
+    const barMoveRafRef = useRef(null);
 
     useEffect(() => {
         if (typeof window === 'undefined') return undefined;
@@ -43,6 +46,9 @@ const FloatingBar = () => {
         }
         if (touchRippleTimerRef.current) {
             window.clearTimeout(touchRippleTimerRef.current);
+        }
+        if (barMoveRafRef.current) {
+            cancelAnimationFrame(barMoveRafRef.current);
         }
     }, []);
 
@@ -120,14 +126,6 @@ const FloatingBar = () => {
         }
     ], [shouldReduceMotion, triggerAction]);
 
-    const isRouteActive = useCallback((itemPath) => {
-        if (!itemPath) return false;
-        if (itemPath === '/dashboard') {
-            return location.pathname === '/dashboard' || location.pathname === '/';
-        }
-        return location.pathname.startsWith(itemPath);
-    }, [location.pathname]);
-
     const handleNavClick = useCallback((item) => {
         if (item.path) {
             navigate(item.path);
@@ -163,6 +161,20 @@ const FloatingBar = () => {
             setPressedItem(null);
         }
     }, [isCoarsePointer]);
+
+    const handleBarPointerMove = useCallback((event) => {
+        if (isCoarsePointer || shouldReduceMotion || !barRef.current) return;
+        if (barMoveRafRef.current) return;
+
+        barMoveRafRef.current = requestAnimationFrame(() => {
+            const rect = barRef.current.getBoundingClientRect();
+            const x = ((event.clientX - rect.left) / rect.width) * 100;
+            const y = ((event.clientY - rect.top) / rect.height) * 100;
+            barRef.current.style.setProperty('--bar-x', `${Math.max(0, Math.min(100, x)).toFixed(2)}%`);
+            barRef.current.style.setProperty('--bar-y', `${Math.max(0, Math.min(100, y)).toFixed(2)}%`);
+            barMoveRafRef.current = null;
+        });
+    }, [isCoarsePointer, shouldReduceMotion]);
 
     const barVariants = {
         hidden: {
@@ -210,11 +222,16 @@ const FloatingBar = () => {
                     exit="hidden"
                     style={{ bottom: 'max(16px, env(safe-area-inset-bottom))', pointerEvents: 'none' }}
                 >
-                    <div className="ios-floating-bar" style={{ pointerEvents: 'auto' }}>
+                    <div
+                        ref={barRef}
+                        className={`ios-floating-bar ${activeAction ? 'ios-floating-bar-morph' : ''}`}
+                        onPointerMove={handleBarPointerMove}
+                        style={{ pointerEvents: 'auto' }}
+                    >
                         <LayoutGroup id="floating-bar-active">
                             {navItems.map((item, index) => {
                                 const Icon = item.icon;
-                                const isActive = isRouteActive(item.path) || activeAction === item.id;
+                                const isActive = isRouteActive(location.pathname, item.path) || activeAction === item.id;
 
                                 return (
                                     <motion.button
@@ -234,7 +251,8 @@ const FloatingBar = () => {
                                         style={{
                                             position: 'relative',
                                             WebkitTapHighlightColor: 'transparent',
-                                            touchAction: 'manipulation'
+                                            touchAction: 'manipulation',
+                                            '--dock-i': index
                                         }}
                                     >
                                         {isActive && (
@@ -248,8 +266,9 @@ const FloatingBar = () => {
                                                     damping: 28
                                                 }}
                                                 style={{
-                                                    background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.16), rgba(14, 165, 233, 0.16))',
-                                                    border: '1px solid rgba(6, 182, 212, 0.3)'
+                                                    background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.28), rgba(14, 165, 233, 0.22))',
+                                                    border: '1px solid rgba(125, 211, 252, 0.45)',
+                                                    boxShadow: '0 8px 22px rgba(14, 165, 233, 0.24), inset 0 1px 0 rgba(255,255,255,0.55)'
                                                 }}
                                             />
                                         )}
@@ -276,11 +295,12 @@ const FloatingBar = () => {
                                             size={20}
                                             style={{
                                                 color: pressedItem === item.id
-                                                    ? '#0369a1'
+                                                    ? '#075985'
                                                     : isActive
-                                                        ? '#0891b2'
-                                                        : '#475569',
-                                                transition: 'color 0.2s ease'
+                                                        ? '#0369a1'
+                                                        : '#334155',
+                                                filter: isActive ? 'drop-shadow(0 2px 8px rgba(14,165,233,0.35))' : 'none',
+                                                transition: 'color 0.2s ease, filter 0.25s ease'
                                             }}
                                         />
 

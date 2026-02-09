@@ -149,6 +149,7 @@ export const ScrollDepth3D = ({
     className = '',
     intensity = 8,
     depth = 14,
+    drift = 10,
     offset = ['start end', 'end start']
 }) => {
     const shouldReduceMotion = useReducedMotion();
@@ -169,6 +170,7 @@ export const ScrollDepth3D = ({
     const rotateX = useTransform(centeredProgress, [-1, 1], [intensity, -intensity]);
     const rotateY = useTransform(centeredProgress, [-1, 1], [-(intensity * 0.35), intensity * 0.35]);
     const translateY = useTransform(centeredProgress, [-1, 1], [depth, -depth]);
+    const translateX = useTransform(centeredProgress, [-1, 1], [-drift, drift]);
     const scale = useTransform(smoothProgress, [0, 0.5, 1], [0.985, 1, 0.985]);
 
     return (
@@ -184,6 +186,7 @@ export const ScrollDepth3D = ({
                         rotateX,
                         rotateY,
                         y: translateY,
+                        x: translateX,
                         scale
                     }
             }

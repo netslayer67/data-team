@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { Filter, Search, Users2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import RoleGroupSection from '../components/RoleGroupSection';
 import { getEmployees, getEmployeesHierarchy, getSchoolFilters } from '../../../data/schoolData';
 import { ScrollDepth3D } from '../../../components/ParallaxSection';
 
 const EmployeeDirectoryPage = () => {
+    const navigate = useNavigate();
     const [filters, setFilters] = useState({
         search: '',
         unit: '',
@@ -13,7 +15,6 @@ const EmployeeDirectoryPage = () => {
     });
 
     const availableFilters = useMemo(() => getSchoolFilters(), []);
-    const dummyHierarchy = useMemo(() => getEmployeesHierarchy(), []);
     const hierarchy = useMemo(() => getEmployeesHierarchy(filters), [filters]);
     const totalEmployees = useMemo(() => getEmployees().pagination.totalRecords, []);
 
@@ -39,11 +40,10 @@ const EmployeeDirectoryPage = () => {
     };
 
     const noResults = hierarchy.every((group) => !group.total);
-    const displayHierarchy = noResults ? dummyHierarchy : hierarchy;
 
     return (
         <div className="space-y-5">
-            <ScrollDepth3D intensity={6} depth={8} className="render-optimized">
+            <ScrollDepth3D intensity={6} depth={8} drift={8} className="render-optimized">
                 <section className="glass-surface rounded-3xl p-5">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <div>
@@ -63,7 +63,7 @@ const EmployeeDirectoryPage = () => {
                 </section>
             </ScrollDepth3D>
 
-            <ScrollDepth3D intensity={5} depth={7} className="render-optimized">
+            <ScrollDepth3D intensity={5} depth={7} drift={-10} className="render-optimized">
                 <section className="glass-surface rounded-3xl p-5">
                     <div className="mb-4 flex items-center gap-2 text-slate-700">
                         <Filter className="h-4 w-4" />
@@ -139,15 +139,24 @@ const EmployeeDirectoryPage = () => {
                     <section className="glass-surface rounded-3xl p-8 text-center">
                         <Users2 className="mx-auto h-8 w-8 text-slate-500" />
                         <p className="mt-3 text-slate-700">No data matches the selected filters.</p>
-                        <p className="mt-1 text-xs text-slate-500">Showing dummy employee cards from all segments.</p>
+                        <p className="mt-1 text-xs text-slate-500">Try changing search keyword or reset filters.</p>
                     </section>
                 </ScrollDepth3D>
             )}
 
             <div className="space-y-5">
-                {displayHierarchy.map((group, index) => (
-                    <ScrollDepth3D key={group.roleGroup} intensity={7 + (index * 0.4)} depth={10} className="render-optimized">
-                        <RoleGroupSection group={group} />
+                {hierarchy.map((group, index) => (
+                    <ScrollDepth3D
+                        key={group.roleGroup}
+                        intensity={7 + (index * 0.4)}
+                        depth={10}
+                        drift={index % 2 === 0 ? 10 : -10}
+                        className="render-optimized"
+                    >
+                        <RoleGroupSection
+                            group={group}
+                            onCardClick={(employee) => navigate(`/employees/${employee._id}`)}
+                        />
                     </ScrollDepth3D>
                 ))}
             </div>

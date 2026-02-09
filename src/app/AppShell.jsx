@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { Suspense, lazy, useEffect, useRef } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { LayoutDashboard, Users, School2 } from 'lucide-react';
-import EnhancedThreeBackdrop from './EnhancedThreeBackdrop';
 import FloatingBar from '../components/FloatingBar';
+import { isRouteActive } from '../utils/navigation';
+
+const EnhancedThreeBackdrop = lazy(() => import('./EnhancedThreeBackdrop'));
 
 const navigation = [
     {
@@ -17,15 +20,10 @@ const navigation = [
     }
 ];
 
-const isActivePath = (pathname, target) => {
-    if (target === '/dashboard') {
-        return pathname === '/dashboard' || pathname === '/';
-    }
-    return pathname.startsWith(target);
-};
-
 const AppShell = () => {
     const location = useLocation();
+    const shouldReduceMotion = useReducedMotion();
+    const shellRef = useRef(null);
     const now = new Intl.DateTimeFormat('en-US', {
         weekday: 'long',
         day: '2-digit',
@@ -33,12 +31,44 @@ const AppShell = () => {
         year: 'numeric'
     }).format(new Date());
 
+    useEffect(() => {
+        const el = shellRef.current;
+        if (!el) return;
+
+        let raf = null;
+        const onMove = (event) => {
+            if (raf) return;
+            raf = requestAnimationFrame(() => {
+                const rect = el.getBoundingClientRect();
+                const x = ((event.clientX - rect.left) / rect.width) * 100;
+                const y = ((event.clientY - rect.top) / rect.height) * 100;
+                el.style.setProperty('--lava-x', `${Math.max(0, Math.min(100, x)).toFixed(2)}%`);
+                el.style.setProperty('--lava-y', `${Math.max(0, Math.min(100, y)).toFixed(2)}%`);
+                raf = null;
+            });
+        };
+
+        el.addEventListener('pointermove', onMove, { passive: true });
+        return () => {
+            el.removeEventListener('pointermove', onMove);
+            if (raf) cancelAnimationFrame(raf);
+        };
+    }, []);
+
     return (
-        <div className="app-background min-h-screen">
-            <EnhancedThreeBackdrop />
+        <div ref={shellRef} className="app-background min-h-screen">
+            <Suspense fallback={null}>
+                <EnhancedThreeBackdrop />
+            </Suspense>
             <div className="orb orb-a" />
             <div className="orb orb-b" />
             <div className="orb orb-c" />
+
+            <div className="lava-field" aria-hidden="true">
+                <div className="lava-blob lava-blob-a" />
+                <div className="lava-blob lava-blob-b" />
+                <div className="lava-blob lava-blob-c" />
+            </div>
 
             <div className="relative z-10 mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-4 py-5 lg:flex-row lg:px-8 lg:py-7">
                 <aside className="glass-surface ios-sidebar-shell w-full rounded-3xl p-5 lg:sticky lg:top-7 lg:h-[calc(100vh-3.5rem)] lg:max-w-[300px]">
@@ -55,7 +85,7 @@ const AppShell = () => {
                     <div className="mt-6 space-y-2">
                         {navigation.map((item) => {
                             const Icon = item.icon;
-                            const active = isActivePath(location.pathname, item.path);
+                            const active = isRouteActive(location.pathname, item.path);
                             return (
                                 <Link
                                     key={item.path}
@@ -94,7 +124,18 @@ const AppShell = () => {
                     </header>
 
                     <main className="pb-24 lg:pb-6">
-                        <Outlet />
+                        <AnimatePresence mode="wait" initial={false}>
+                            <motion.div
+                                key={location.pathname}
+                                className="route-transition-layer"
+                                initial={shouldReduceMotion ? false : { opacity: 0, y: 12, filter: 'blur(4px)' }}
+                                animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, filter: 'blur(0px)' }}
+                                exit={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: -10, filter: 'blur(3px)' }}
+                                transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+                            >
+                                <Outlet />
+                            </motion.div>
+                        </AnimatePresence>
                     </main>
                 </div>
             </div>

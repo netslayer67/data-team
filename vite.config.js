@@ -16,7 +16,17 @@ export default defineConfig({
     },
     build: {
         outDir: 'dist',
-        sourcemap: true
+        sourcemap: true,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    three: ['three'],
+                    charts: ['recharts'],
+                    motion: ['framer-motion'],
+                    router: ['react-router-dom']
+                }
+            }
+        }
     },
     resolve: {
         alias: {

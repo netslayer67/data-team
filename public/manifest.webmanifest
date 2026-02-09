@@ -1,11 +1,11 @@
 {
-  "name": "Financial Dashboard",
-  "short_name": "FinDash",
+  "name": "School Insight Board",
+  "short_name": "InsightBoard",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "description": "Offline-ready financial reporting dashboard",
+  "description": "Offline-ready school workforce and employee insights dashboard",
   "icons": [
     {
       "src": "/icons/icon-192.png",

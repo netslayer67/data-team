@@ -1,3 +1,5 @@
+import { lazy } from 'react';
+
 /**
  * Performance monitoring and optimization utilities
  */
@@ -106,7 +108,7 @@ export const getOptimalAnimationSettings = () => {
 
 // Lazy load component
 export const lazyLoad = (importFn, fallback = null) => {
-    return React.lazy(() =>
+    return lazy(() =>
         importFn().catch(error => {
             console.warn('Lazy load failed:', error);
             return { default: fallback || (() => null) };
