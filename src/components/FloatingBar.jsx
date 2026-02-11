@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from 'framer-motion';
-import { Home, Users, Settings, Bell, Search } from 'lucide-react';
+import { Home, Users, Settings } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { isRouteActive } from '../utils/navigation';
 
@@ -93,28 +93,6 @@ const FloatingBar = () => {
     const navItems = useMemo(() => [
         { id: 'dashboard', icon: Home, label: 'Dashboard', path: '/dashboard' },
         { id: 'employees', icon: Users, label: 'Employees', path: '/employees' },
-        {
-            id: 'search',
-            icon: Search,
-            label: 'Search',
-            action: () => {
-                triggerAction('search');
-                const searchableElement = document.querySelector('input[type="text"], input[type="search"]');
-                if (searchableElement) {
-                    searchableElement.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'center' });
-                    searchableElement.focus({ preventScroll: true });
-                }
-            }
-        },
-        {
-            id: 'notifications',
-            icon: Bell,
-            label: 'Notifications',
-            action: () => {
-                triggerAction('notifications');
-                window.scrollTo({ top: 0, behavior: shouldReduceMotion ? 'auto' : 'smooth' });
-            }
-        },
         {
             id: 'settings',
             icon: Settings,

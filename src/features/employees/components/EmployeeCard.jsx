@@ -17,13 +17,33 @@ const roleGradient = {
     'Head Unit': 'from-blue-500/80 via-cyan-500/70 to-sky-500/70',
     Staff: 'from-amber-500/80 via-orange-500/70 to-rose-500/65',
     Teacher: 'from-emerald-500/80 via-teal-500/70 to-cyan-500/70',
+    'SE Teacher': 'from-teal-500/80 via-emerald-500/70 to-cyan-500/70',
+    'Support Staff': 'from-slate-500/80 via-slate-400/70 to-sky-500/65',
     Others: 'from-slate-500/80 via-slate-400/70 to-cyan-500/60'
 };
 
 const getAvatarUrl = (employee) => {
-    if (employee.photoUrl) return employee.photoUrl;
     const name = encodeURIComponent(employee.fullName || 'Employee');
-    return `https://ui-avatars.com/api/?name=${name}&background=0ea5e9&color=fff&rounded=true&bold=true&size=160`;
+    const bg = (employee.avatarColor || '#0ea5e9').replace('#', '');
+    return `https://ui-avatars.com/api/?name=${name}&background=${bg}&color=fff&rounded=true&bold=true&size=160`;
+};
+
+const isTeachingRole = (employee) => ['Teacher', 'SE Teacher'].includes(employee?.roleGroup);
+
+const getSecondaryBadgeText = (employee) => {
+    if (isTeachingRole(employee)) {
+        return employee.className ? `Class: ${employee.className}` : 'Class: -';
+    }
+
+    if (employee.employmentType) {
+        return employee.employmentType;
+    }
+
+    if (employee.building) {
+        return `Building: ${employee.building}`;
+    }
+
+    return '-';
 };
 
 const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
@@ -91,7 +111,7 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
 
                     <div className="relative z-10 mt-3 flex items-center justify-between gap-2">
                         <span className="rounded-full border border-white/70 bg-white/70 px-2 py-0.5 text-[10px] font-medium text-slate-700 truncate max-w-[55%]">
-                            {employee.employmentType}
+                            {getSecondaryBadgeText(employee)}
                         </span>
                         <span className="rounded-full border border-white/70 bg-white/70 px-2 py-0.5 text-[10px] font-medium text-slate-700">
                             {employee.status}
@@ -105,7 +125,7 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
                         </p>
                         <p className="flex items-center gap-1.5">
                             <CalendarDays className="h-3.5 w-3.5 text-slate-500" />
-                            <span>{formatJoinDate(employee.joinDate)}</span>
+                            <span>Join Date: {formatJoinDate(employee.joinDate)}</span>
                         </p>
                     </div>
                 </div>
@@ -167,7 +187,7 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
 
                 <div className="relative z-10 mt-4 grid grid-cols-1 gap-2 text-sm text-slate-700">
                     <div className="inline-flex w-fit items-center rounded-full border border-white/60 bg-white/60 px-2.5 py-1 text-xs font-medium text-slate-700">
-                        {employee.employmentType}
+                        {getSecondaryBadgeText(employee)}
                     </div>
 
                     <p className="flex items-center gap-2">
@@ -176,7 +196,7 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
                     </p>
                     <p className="flex items-center gap-2">
                         <CalendarDays className="h-4 w-4 text-slate-500" />
-                        <span>{formatJoinDate(employee.joinDate)}</span>
+                        <span>Join Date: {formatJoinDate(employee.joinDate)}</span>
                     </p>
                     {employee.email && (
                         <p className="flex items-center gap-2">

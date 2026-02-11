@@ -12,14 +12,15 @@ import {
 
 const BAR_COLORS = ['#22d3ee', '#38bdf8', '#60a5fa', '#818cf8', '#a78bfa'];
 
-const RoleDistributionChart = ({ data = [] }) => {
+const RoleDistributionChart = ({ data = [], density = 'comfortable' }) => {
     const [activeIndex, setActiveIndex] = useState(-1);
+    const isCompact = density === 'compact';
 
     const total = useMemo(() => data.reduce((acc, item) => acc + (item.count || 0), 0), [data]);
 
     return (
-        <section className="glass-surface rounded-3xl p-5">
-            <div className="mb-4 flex items-start justify-between gap-3">
+        <section className={`glass-surface rounded-[28px] ${isCompact ? 'p-4 md:p-5' : 'p-5 md:p-6'}`}>
+            <div className={`flex items-start justify-between gap-3 ${isCompact ? 'mb-3' : 'mb-4'}`}>
                 <div>
                     <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Composition</p>
                     <h3 className="font-display text-xl font-semibold text-slate-900">Role group distribution</h3>
@@ -29,18 +30,18 @@ const RoleDistributionChart = ({ data = [] }) => {
                 </div>
             </div>
 
-            <div className="h-[290px] w-full">
+            <div className={`w-full ${isCompact ? 'h-[272px]' : 'h-[320px]'}`}>
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data} margin={{ top: 12, right: 10, left: -8, bottom: 8 }}>
                         <CartesianGrid strokeDasharray="3 5" stroke="#cbd5e1" strokeOpacity={0.35} vertical={false} />
                         <XAxis
                             dataKey="_id"
-                            tick={{ fill: '#334155', fontSize: 12 }}
+                            tick={{ fill: '#334155', fontSize: isCompact ? 11 : 12 }}
                             axisLine={false}
                             tickLine={false}
                         />
                         <YAxis
-                            tick={{ fill: '#334155', fontSize: 12 }}
+                            tick={{ fill: '#334155', fontSize: isCompact ? 11 : 12 }}
                             allowDecimals={false}
                             axisLine={false}
                             tickLine={false}

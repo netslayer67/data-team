@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Photo Mapper</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+h1 { text-align: center; margin-bottom: 10px; color: #22d3ee; }
+.subtitle { text-align: center; color: #94a3b8; margin-bottom: 20px; font-size: 14px; }
+
+.controls { 
+    position: sticky; top: 0; z-index: 100; background: #1e293b; 
+    padding: 15px; border-radius: 12px; margin-bottom: 20px;
+    border: 1px solid #334155; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+}
+.controls select { 
+    padding: 8px 12px; border-radius: 8px; background: #0f172a; color: #e2e8f0; 
+    border: 1px solid #475569; font-size: 14px; min-width: 250px;
+}
+.controls button {
+    padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 14px; font-weight: 600;
+}
+.btn-assign { background: #0891b2; color: white; }
+.btn-assign:hover { background: #0e7490; }
+.btn-export { background: #059669; color: white; }
+.btn-export:hover { background: #047857; }
+.btn-clear { background: #dc2626; color: white; }
+.btn-clear:hover { background: #b91c1c; }
+.btn-undo { background: #d97706; color: white; }
+.btn-undo:hover { background: #b45309; }
+
+.stats { color: #94a3b8; font-size: 13px; margin-left: auto; }
+
+.grid { 
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+    gap: 8px; 
+}
+.photo-card {
+    position: relative; border-radius: 10px; overflow: hidden;
+    border: 3px solid transparent; cursor: pointer; transition: all 0.2s;
+    aspect-ratio: 3/4; background: #1e293b;
+}
+.photo-card:hover { transform: scale(1.03); }
+.photo-card.selected { border-color: #22d3ee; box-shadow: 0 0 15px rgba(34,211,238,0.4); }
+.photo-card.assigned { border-color: #059669; }
+.photo-card img { width: 100%; height: 100%; object-fit: cover; }
+.photo-card .dsc { 
+    position: absolute; top: 4px; left: 4px; background: rgba(0,0,0,0.7); 
+    color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px;
+}
+.photo-card .emp-name {
+    position: absolute; bottom: 0; left: 0; right: 0; background: rgba(5,150,105,0.9);
+    color: white; font-size: 10px; padding: 3px 6px; text-align: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.photo-card .index {
+    position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7);
+    color: #94a3b8; font-size: 10px; padding: 2px 6px; border-radius: 4px;
+}
+
+.instructions {
+    background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+    padding: 15px; margin-bottom: 20px; font-size: 13px; color: #94a3b8;
+}
+.instructions h3 { color: #22d3ee; margin-bottom: 8px; }
+.instructions ol { padding-left: 20px; }
+.instructions li { margin-bottom: 4px; }
+.instructions code { background: #0f172a; padding: 2px 6px; border-radius: 4px; color: #22d3ee; }
+
+#exportOutput {
+    display: none; background: #0f172a; border: 1px solid #334155; border-radius: 12px;
+    padding: 15px; margin-top: 20px; white-space: pre-wrap; font-family: monospace;
+    font-size: 12px; max-height: 400px; overflow-y: auto; color: #a5f3fc;
+}
+</style>
+</head>
+<body>
+
+<h1>Employee Photo Mapper</h1>
+<p class="subtitle">359 foto dari Cloudinary — klik foto lalu assign ke karyawan</p>
+
+<div class="instructions">
+<h3>Cara Pakai:</h3>
+<ol>
+<li><strong>Klik foto-foto</strong> yang milik satu orang yang sama (akan ter-highlight biru)</li>
+<li><strong>Pilih nama karyawan</strong> dari dropdown</li>
+<li>Klik <strong>"Assign ke Karyawan"</strong></li>
+<li>Ulangi untuk setiap karyawan</li>
+<li>Setelah selesai, klik <strong>"Export JSON"</strong> — copy hasilnya dan kirim ke saya</li>
+</ol>
+</div>
+
+<div class="controls">
+    <select id="empSelect">
+        <option value="">-- Pilih Karyawan --</option>
+        <option value="emp-001">Abdullah</option>
+        <option value="emp-002">Abu Bakar Ali</option>
+        <option value="emp-003">Adibah Hana Widjaya</option>
+        <option value="emp-004">Adiya Herisa</option>
+        <option value="emp-005">Afiyanti Hardiansari</option>
+        <option value="emp-006">Ahmad Haikal</option>
+        <option value="emp-007">Alifananda Dhaffa Hanif Musyafa</option>
+        <option value="emp-008">Almia Ester Kristiyany Sinabang</option>
+        <option value="emp-009">Andrean Hadinata</option>
+        <option value="emp-010">Anggie Ayu Setya Pradini</option>
+        <option value="emp-011">Annisa Fitri Tanjung</option>
+        <option value="emp-012">Ardiansyah</option>
+        <option value="emp-013">Ari Wibowo</option>
+        <option value="emp-014">Aria Wisnuwardana</option>
+        <option value="emp-015">Auliya Hasanatin Suwisto</option>
+        <option value="emp-016">Ayunda Primaputri</option>
+        <option value="emp-017">Azalia Magdalena Septianti Tambunan</option>
+        <option value="emp-018">Bela Kartika Sari</option>
+        <option value="emp-019">Berliana Gustina Siregar</option>
+        <option value="emp-020">Chantika Nur Febryanti</option>
+        <option value="emp-021">Danu Irwansyah</option>
+        <option value="emp-022">Denis Septian</option>
+        <option value="emp-023">Derry Parmanto</option>
+        <option value="emp-024">Devi Agriani</option>
+        <option value="emp-025">Devi Larasati</option>
+        <option value="emp-026">Dien Islamy</option>
+        <option value="emp-027">Dina</option>
+        <option value="emp-028">Dini Meilani Pramesti</option>
+        <option value="emp-029">Diya Pratiwi</option>
+        <option value="emp-030">Dona</option>
+        <option value="emp-031">Fadholi Akbar</option>
+        <option value="emp-032">Faisal Nur Hidayat</option>
+        <option value="emp-033">Faqiha Salma Achmada</option>
+        <option value="emp-034">Farhah Alya Nabilah</option>
+        <option value="emp-035">Fayza Julia Pramesti Hapsari Prayoga</option>
+        <option value="emp-036">Ferlyna Balqis</option>
+        <option value="emp-037">Fransiska Evasari</option>
+        <option value="emp-038">Galen Rasendriya</option>
+        <option value="emp-039">Gebby Rika Amdani</option>
+        <option value="emp-040">Gundah Basiswi</option>
+        <option value="emp-041">Hadi</option>
+        <option value="emp-042">Hana Nuzula Fajria</option>
+        <option value="emp-043">Himawan Rizky Syaputra</option>
+        <option value="emp-044">Ian Ahmad Fauzi</option>
+        <option value="emp-045">Iis Asifah</option>
+        <option value="emp-046">Ika Rahayu</option>
+        <option value="emp-047">Irawan</option>
+        <option value="emp-048">Khairul Anwar</option>
+        <option value="emp-049">Kholida Widyawati</option>
+        <option value="emp-050">Krisalyssa Esna Rehulina Tarigan</option>
+        <option value="emp-051">Kurnia Sandi</option>
+        <option value="emp-052">Latifah Nur Restiningtyas</option>
+        <option value="emp-053">Mahrukh Bashir</option>
+        <option value="emp-054">Maria Rosa Apriliana Jaftoran</option>
+        <option value="emp-055">Maulida Yunita</option>
+        <option value="emp-056">Muhammad Farhan Sholeh Ramadhika</option>
+        <option value="emp-057">Muhammad Fathan Qorib</option>
+        <option value="emp-058">Muhammad Gibran Al Wali</option>
+        <option value="emp-059">Muhammad Rayhan Ananta</option>
+        <option value="emp-060">Mukron</option>
+        <option value="emp-061">Nadia</option>
+        <option value="emp-062">Najmi Silmi Mafaza</option>
+        <option value="emp-063">Nanda Citra Ryani</option>
+        <option value="emp-064">Nathasya Christine Prabowo</option>
+        <option value="emp-065">Nayandra Hasan Sudra</option>
+        <option value="emp-066">Nazmi Kusumawantari</option>
+        <option value="emp-067">Ni Made Ayu Juwitasari</option>
+        <option value="emp-068">Novan Syaiful Rahman</option>
+        <option value="emp-069">Novia Syifaputri Ramadhan</option>
+        <option value="emp-070">Nur Muhamad Ismail</option>
+        <option value="emp-071">Nurul Widyaningtyas Agustin</option>
+        <option value="emp-072">Pipiet Anggreiny</option>
+        <option value="emp-073">Pricilla Cecil Leander</option>
+        <option value="emp-074">Prisy Dewanti</option>
+        <option value="emp-075">Putri Fitriyani</option>
+        <option value="emp-076">Raditya Saputra</option>
+        <option value="emp-077">Raisa Ramadhani</option>
+        <option value="emp-078">Ratna Merlangen</option>
+        <option value="emp-079">Restia Widiasari</option>
+        <option value="emp-080">Reza Rizky Prayudha</option>
+        <option value="emp-081">Rifqi Satria Permana</option>
+        <option value="emp-082">Rike Rahmawati</option>
+        <option value="emp-083">Risma Ayu Angelita</option>
+        <option value="emp-084">Risma Galuh Pitaloka Fahdin</option>
+        <option value="emp-085">Rizki Amalia Fatikhah</option>
+        <option value="emp-086">Rizki Nurul Hayati</option>
+        <option value="emp-087">Robby Anggara</option>
+        <option value="emp-088">Robby Noer Abjuny</option>
+        <option value="emp-089">Robiatul Adawiah</option>
+        <option value="emp-090">Rohmatulloh</option>
+        <option value="emp-091">Romasta Oryza Sativa Siagian</option>
+        <option value="emp-092">Salsabila Dhiyaussyifa Laela</option>
+        <option value="emp-093">Sarah Yuliana</option>
+        <option value="emp-094">Sayed Jilliyan</option>
+        <option value="emp-095">Shahrani Fatimah Azzahrah</option>
+        <option value="emp-096">Susantika Nilasari</option>
+        <option value="emp-097">Tiastiningrum Nugrahanti</option>
+        <option value="emp-098">Tien Hadiningsih</option>
+        <option value="emp-099">Tri Ayu Lestari</option>
+        <option value="emp-100">Tria Fadilla</option>
+        <option value="emp-101">Udom Anatapong</option>
+        <option value="emp-102">Usep Saefurohman</option>
+        <option value="emp-103">Vicki Aprinando</option>
+        <option value="emp-104">Vinka Erawati</option>
+        <option value="emp-105">Wahyu Ramadhan</option>
+        <option value="emp-106">Yeti</option>
+        <option value="emp-107">Yohana Setia Risli</option>
+        <option value="emp-108">Yosafat Imanuel Parlindungan</option>
+        <option value="emp-109">Zavier Cloudya Mashareen</option>
+        <option value="emp-110">Zolla Firmalia Rossa</option>
+    </select>
+    <button class="btn-assign" onclick="assignSelected()">Assign ke Karyawan</button>
+    <button class="btn-undo" onclick="undoLast()">Undo</button>
+    <button class="btn-clear" onclick="clearSelection()">Clear Selection</button>
+    <button class="btn-export" onclick="exportJSON()">Export JSON</button>
+    <span class="stats" id="statsText">Selected: 0 | Assigned: 0/359</span>
+</div>
+
+<div class="grid" id="photoGrid">
+    <div class="photo-card" data-idx="0" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779803/DSC00283_aizhuj.jpg" data-dsc="DSC00283" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779803/DSC00283_aizhuj.jpg" loading="lazy" alt="DSC00283">
+        <span class="dsc">DSC00283</span>
+        <span class="index">#1</span>
+    </div>
+    <div class="photo-card" data-idx="1" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779803/DSC00285_chdubi.jpg" data-dsc="DSC00285" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779803/DSC00285_chdubi.jpg" loading="lazy" alt="DSC00285">
+        <span class="dsc">DSC00285</span>
+        <span class="index">#2</span>
+    </div>
+    <div class="photo-card" data-idx="2" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779811/DSC00286_y0wvuy.jpg" data-dsc="DSC00286" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779811/DSC00286_y0wvuy.jpg" loading="lazy" alt="DSC00286">
+        <span class="dsc">DSC00286</span>
+        <span class="index">#3</span>
+    </div>
+    <div class="photo-card" data-idx="3" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779811/DSC00846_bzjer3.jpg" data-dsc="DSC00846" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779811/DSC00846_bzjer3.jpg" loading="lazy" alt="DSC00846">
+        <span class="dsc">DSC00846</span>
+        <span class="index">#4</span>
+    </div>
+    <div class="photo-card" data-idx="4" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779812/DSC00847_sl3n15.jpg" data-dsc="DSC00847" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779812/DSC00847_sl3n15.jpg" loading="lazy" alt="DSC00847">
+        <span class="dsc">DSC00847</span>
+        <span class="index">#5</span>
+    </div>
+    <div class="photo-card" data-idx="5" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779812/DSC00848_lzrpdu.jpg" data-dsc="DSC00848" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779812/DSC00848_lzrpdu.jpg" loading="lazy" alt="DSC00848">
+        <span class="dsc">DSC00848</span>
+        <span class="index">#6</span>
+    </div>
+    <div class="photo-card" data-idx="6" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779812/DSC02176_phbqh4.jpg" data-dsc="DSC02176" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779812/DSC02176_phbqh4.jpg" loading="lazy" alt="DSC02176">
+        <span class="dsc">DSC02176</span>
+        <span class="index">#7</span>
+    </div>
+    <div class="photo-card" data-idx="7" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779812/DSC02178_kahsck.jpg" data-dsc="DSC02178" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779812/DSC02178_kahsck.jpg" loading="lazy" alt="DSC02178">
+        <span class="dsc">DSC02178</span>
+        <span class="index">#8</span>
+    </div>
+    <div class="photo-card" data-idx="8" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779813/DSC02179_lm3yao.jpg" data-dsc="DSC02179" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779813/DSC02179_lm3yao.jpg" loading="lazy" alt="DSC02179">
+        <span class="dsc">DSC02179</span>
+        <span class="index">#9</span>
+    </div>
+    <div class="photo-card" data-idx="9" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779813/DSC02215_fqazta.jpg" data-dsc="DSC02215" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779813/DSC02215_fqazta.jpg" loading="lazy" alt="DSC02215">
+        <span class="dsc">DSC02215</span>
+        <span class="index">#10</span>
+    </div>
+    <div class="photo-card" data-idx="10" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779813/DSC02216_etruxo.jpg" data-dsc="DSC02216" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779813/DSC02216_etruxo.jpg" loading="lazy" alt="DSC02216">
+        <span class="dsc">DSC02216</span>
+        <span class="index">#11</span>
+    </div>
+    <div class="photo-card" data-idx="11" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779814/DSC02217_l21por.jpg" data-dsc="DSC02217" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779814/DSC02217_l21por.jpg" loading="lazy" alt="DSC02217">
+        <span class="dsc">DSC02217</span>
+        <span class="index">#12</span>
+    </div>
+    <div class="photo-card" data-idx="12" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779813/DSC02219_eunt7d.jpg" data-dsc="DSC02219" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779813/DSC02219_eunt7d.jpg" loading="lazy" alt="DSC02219">
+        <span class="dsc">DSC02219</span>
+        <span class="index">#13</span>
+    </div>
+    <div class="photo-card" data-idx="13" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779813/DSC02220_le4k5d.jpg" data-dsc="DSC02220" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779813/DSC02220_le4k5d.jpg" loading="lazy" alt="DSC02220">
+        <span class="dsc">DSC02220</span>
+        <span class="index">#14</span>
+    </div>
+    <div class="photo-card" data-idx="14" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779814/DSC02221_p8y3oi.jpg" data-dsc="DSC02221" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779814/DSC02221_p8y3oi.jpg" loading="lazy" alt="DSC02221">
+        <span class="dsc">DSC02221</span>
+        <span class="index">#15</span>
+    </div>
+    <div class="photo-card" data-idx="15" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779814/DSC02225_vbjy1k.jpg" data-dsc="DSC02225" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779814/DSC02225_vbjy1k.jpg" loading="lazy" alt="DSC02225">
+        <span class="dsc">DSC02225</span>
+        <span class="index">#16</span>
+    </div>
+    <div class="photo-card" data-idx="16" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779814/DSC02227_fadlbc.jpg" data-dsc="DSC02227" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779814/DSC02227_fadlbc.jpg" loading="lazy" alt="DSC02227">
+        <span class="dsc">DSC02227</span>
+        <span class="index">#17</span>
+    </div>
+    <div class="photo-card" data-idx="17" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779814/DSC02228_fdtyao.jpg" data-dsc="DSC02228" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779814/DSC02228_fdtyao.jpg" loading="lazy" alt="DSC02228">
+        <span class="dsc">DSC02228</span>
+        <span class="index">#18</span>
+    </div>
+    <div class="photo-card" data-idx="18" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779814/DSC02229_autx78.jpg" data-dsc="DSC02229" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779814/DSC02229_autx78.jpg" loading="lazy" alt="DSC02229">
+        <span class="dsc">DSC02229</span>
+        <span class="index">#19</span>
+    </div>
+    <div class="photo-card" data-idx="19" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779818/DSC03759_eljdqp.jpg" data-dsc="DSC03759" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779818/DSC03759_eljdqp.jpg" loading="lazy" alt="DSC03759">
+        <span class="dsc">DSC03759</span>
+        <span class="index">#20</span>
+    </div>
+    <div class="photo-card" data-idx="20" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779851/DSC03761_aea7bj.jpg" data-dsc="DSC03761" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779851/DSC03761_aea7bj.jpg" loading="lazy" alt="DSC03761">
+        <span class="dsc">DSC03761</span>
+        <span class="index">#21</span>
+    </div>
+    <div class="photo-card" data-idx="21" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779854/DSC03765_jtven3.jpg" data-dsc="DSC03765" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779854/DSC03765_jtven3.jpg" loading="lazy" alt="DSC03765">
+        <span class="dsc">DSC03765</span>
+        <span class="index">#22</span>
+    </div>
+    <div class="photo-card" data-idx="22" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779851/DSC03767_urgxly.jpg" data-dsc="DSC03767" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779851/DSC03767_urgxly.jpg" loading="lazy" alt="DSC03767">
+        <span class="dsc">DSC03767</span>
+        <span class="index">#23</span>
+    </div>
+    <div class="photo-card" data-idx="23" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779851/DSC03771_iiroao.jpg" data-dsc="DSC03771" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779851/DSC03771_iiroao.jpg" loading="lazy" alt="DSC03771">
+        <span class="dsc">DSC03771</span>
+        <span class="index">#24</span>
+    </div>
+    <div class="photo-card" data-idx="24" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779851/DSC03774_t8e7ix.jpg" data-dsc="DSC03774" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779851/DSC03774_t8e7ix.jpg" loading="lazy" alt="DSC03774">
+        <span class="dsc">DSC03774</span>
+        <span class="index">#25</span>
+    </div>
+    <div class="photo-card" data-idx="25" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779852/DSC03775_spmsbo.jpg" data-dsc="DSC03775" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779852/DSC03775_spmsbo.jpg" loading="lazy" alt="DSC03775">
+        <span class="dsc">DSC03775</span>
+        <span class="index">#26</span>
+    </div>
+    <div class="photo-card" data-idx="26" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779853/DSC03777_bqa98v.jpg" data-dsc="DSC03777" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779853/DSC03777_bqa98v.jpg" loading="lazy" alt="DSC03777">
+        <span class="dsc">DSC03777</span>
+        <span class="index">#27</span>
+    </div>
+    <div class="photo-card" data-idx="27" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779853/DSC03778_sxo0wk.jpg" data-dsc="DSC03778" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779853/DSC03778_sxo0wk.jpg" loading="lazy" alt="DSC03778">
+        <span class="dsc">DSC03778</span>
+        <span class="index">#28</span>
+    </div>
+    <div class="photo-card" data-idx="28" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779854/DSC03782_jf4sef.jpg" data-dsc="DSC03782" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779854/DSC03782_jf4sef.jpg" loading="lazy" alt="DSC03782">
+        <span class="dsc">DSC03782</span>
+        <span class="index">#29</span>
+    </div>
+    <div class="photo-card" data-idx="29" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779854/DSC03786_znzn46.jpg" data-dsc="DSC03786" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779854/DSC03786_znzn46.jpg" loading="lazy" alt="DSC03786">
+        <span class="dsc">DSC03786</span>
+        <span class="index">#30</span>
+    </div>
+    <div class="photo-card" data-idx="30" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779854/DSC03788_mmjuld.jpg" data-dsc="DSC03788" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779854/DSC03788_mmjuld.jpg" loading="lazy" alt="DSC03788">
+        <span class="dsc">DSC03788</span>
+        <span class="index">#31</span>
+    </div>
+    <div class="photo-card" data-idx="31" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779858/DSC03790_u9fxuy.jpg" data-dsc="DSC03790" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779858/DSC03790_u9fxuy.jpg" loading="lazy" alt="DSC03790">
+        <span class="dsc">DSC03790</span>
+        <span class="index">#32</span>
+    </div>
+    <div class="photo-card" data-idx="32" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779855/DSC03794_lxhhug.jpg" data-dsc="DSC03794" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779855/DSC03794_lxhhug.jpg" loading="lazy" alt="DSC03794">
+        <span class="dsc">DSC03794</span>
+        <span class="index">#33</span>
+    </div>
+    <div class="photo-card" data-idx="33" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779856/DSC03797_tlvxu9.jpg" data-dsc="DSC03797" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779856/DSC03797_tlvxu9.jpg" loading="lazy" alt="DSC03797">
+        <span class="dsc">DSC03797</span>
+        <span class="index">#34</span>
+    </div>
+    <div class="photo-card" data-idx="34" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779855/DSC03805_m5vjq1.jpg" data-dsc="DSC03805" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779855/DSC03805_m5vjq1.jpg" loading="lazy" alt="DSC03805">
+        <span class="dsc">DSC03805</span>
+        <span class="index">#35</span>
+    </div>
+    <div class="photo-card" data-idx="35" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779856/DSC03912_tuzdpm.jpg" data-dsc="DSC03912" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779856/DSC03912_tuzdpm.jpg" loading="lazy" alt="DSC03912">
+        <span class="dsc">DSC03912</span>
+        <span class="index">#36</span>
+    </div>
+    <div class="photo-card" data-idx="36" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779857/DSC03918_ikajbw.jpg" data-dsc="DSC03918" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779857/DSC03918_ikajbw.jpg" loading="lazy" alt="DSC03918">
+        <span class="dsc">DSC03918</span>
+        <span class="index">#37</span>
+    </div>
+    <div class="photo-card" data-idx="37" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779856/DSC04167_ng2ph1.jpg" data-dsc="DSC04167" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779856/DSC04167_ng2ph1.jpg" loading="lazy" alt="DSC04167">
+        <span class="dsc">DSC04167</span>
+        <span class="index">#38</span>
+    </div>
+    <div class="photo-card" data-idx="38" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779862/DSC04168_lpgsfn.jpg" data-dsc="DSC04168" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779862/DSC04168_lpgsfn.jpg" loading="lazy" alt="DSC04168">
+        <span class="dsc">DSC04168</span>
+        <span class="index">#39</span>
+    </div>
+    <div class="photo-card" data-idx="39" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779858/DSC04169_rkuzrs.jpg" data-dsc="DSC04169" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779858/DSC04169_rkuzrs.jpg" loading="lazy" alt="DSC04169">
+        <span class="dsc">DSC04169</span>
+        <span class="index">#40</span>
+    </div>
+    <div class="photo-card" data-idx="40" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779859/DSC04172_ynurls.jpg" data-dsc="DSC04172" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779859/DSC04172_ynurls.jpg" loading="lazy" alt="DSC04172">
+        <span class="dsc">DSC04172</span>
+        <span class="index">#41</span>
+    </div>
+    <div class="photo-card" data-idx="41" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779858/DSC04173_dqm111.jpg" data-dsc="DSC04173" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779858/DSC04173_dqm111.jpg" loading="lazy" alt="DSC04173">
+        <span class="dsc">DSC04173</span>
+        <span class="index">#42</span>
+    </div>
+    <div class="photo-card" data-idx="42" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779858/DSC04174_q7afu0.jpg" data-dsc="DSC04174" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779858/DSC04174_q7afu0.jpg" loading="lazy" alt="DSC04174">
+        <span class="dsc">DSC04174</span>
+        <span class="index">#43</span>
+    </div>
+    <div class="photo-card" data-idx="43" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779859/DSC04177_vidlyi.jpg" data-dsc="DSC04177" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779859/DSC04177_vidlyi.jpg" loading="lazy" alt="DSC04177">
+        <span class="dsc">DSC04177</span>
+        <span class="index">#44</span>
+    </div>
+    <div class="photo-card" data-idx="44" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779859/DSC04178_msxl0n.jpg" data-dsc="DSC04178" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779859/DSC04178_msxl0n.jpg" loading="lazy" alt="DSC04178">
+        <span class="dsc">DSC04178</span>
+        <span class="index">#45</span>
+    </div>
+    <div class="photo-card" data-idx="45" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779860/DSC04181_dyyttr.jpg" data-dsc="DSC04181" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779860/DSC04181_dyyttr.jpg" loading="lazy" alt="DSC04181">
+        <span class="dsc">DSC04181</span>
+        <span class="index">#46</span>
+    </div>
+    <div class="photo-card" data-idx="46" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779861/DSC04186_gqcuyb.jpg" data-dsc="DSC04186" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779861/DSC04186_gqcuyb.jpg" loading="lazy" alt="DSC04186">
+        <span class="dsc">DSC04186</span>
+        <span class="index">#47</span>
+    </div>
+    <div class="photo-card" data-idx="47" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779860/DSC04187_spacp3.jpg" data-dsc="DSC04187" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779860/DSC04187_spacp3.jpg" loading="lazy" alt="DSC04187">
+        <span class="dsc">DSC04187</span>
+        <span class="index">#48</span>
+    </div>
+    <div class="photo-card" data-idx="48" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779861/DSC04188_gbxc7r.jpg" data-dsc="DSC04188" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779861/DSC04188_gbxc7r.jpg" loading="lazy" alt="DSC04188">
+        <span class="dsc">DSC04188</span>
+        <span class="index">#49</span>
+    </div>
+    <div class="photo-card" data-idx="49" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779861/DSC04268_yck3cm.jpg" data-dsc="DSC04268" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779861/DSC04268_yck3cm.jpg" loading="lazy" alt="DSC04268">
+        <span class="dsc">DSC04268</span>
+        <span class="index">#50</span>
+    </div>
+    <div class="photo-card" data-idx="50" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779874/DSC04270_e7fyfg.jpg" data-dsc="DSC04270" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779874/DSC04270_e7fyfg.jpg" loading="lazy" alt="DSC04270">
+        <span class="dsc">DSC04270</span>
+        <span class="index">#51</span>
+    </div>
+    <div class="photo-card" data-idx="51" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779875/DSC04275_pm0s5n.jpg" data-dsc="DSC04275" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779875/DSC04275_pm0s5n.jpg" loading="lazy" alt="DSC04275">
+        <span class="dsc">DSC04275</span>
+        <span class="index">#52</span>
+    </div>
+    <div class="photo-card" data-idx="52" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779875/DSC04277_cigljv.jpg" data-dsc="DSC04277" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779875/DSC04277_cigljv.jpg" loading="lazy" alt="DSC04277">
+        <span class="dsc">DSC04277</span>
+        <span class="index">#53</span>
+    </div>
+    <div class="photo-card" data-idx="53" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779875/DSC04278_ifpgad.jpg" data-dsc="DSC04278" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779875/DSC04278_ifpgad.jpg" loading="lazy" alt="DSC04278">
+        <span class="dsc">DSC04278</span>
+        <span class="index">#54</span>
+    </div>
+    <div class="photo-card" data-idx="54" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779875/DSC04280_ywp41r.jpg" data-dsc="DSC04280" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779875/DSC04280_ywp41r.jpg" loading="lazy" alt="DSC04280">
+        <span class="dsc">DSC04280</span>
+        <span class="index">#55</span>
+    </div>
+    <div class="photo-card" data-idx="55" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779875/DSC04285_theaq4.jpg" data-dsc="DSC04285" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779875/DSC04285_theaq4.jpg" loading="lazy" alt="DSC04285">
+        <span class="dsc">DSC04285</span>
+        <span class="index">#56</span>
+    </div>
+    <div class="photo-card" data-idx="56" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779875/DSC04287_ksvs8v.jpg" data-dsc="DSC04287" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779875/DSC04287_ksvs8v.jpg" loading="lazy" alt="DSC04287">
+        <span class="dsc">DSC04287</span>
+        <span class="index">#57</span>
+    </div>
+    <div class="photo-card" data-idx="57" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779876/DSC04288_wyaxer.jpg" data-dsc="DSC04288" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779876/DSC04288_wyaxer.jpg" loading="lazy" alt="DSC04288">
+        <span class="dsc">DSC04288</span>
+        <span class="index">#58</span>
+    </div>
+    <div class="photo-card" data-idx="58" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779876/DSC04289_i7efag.jpg" data-dsc="DSC04289" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779876/DSC04289_i7efag.jpg" loading="lazy" alt="DSC04289">
+        <span class="dsc">DSC04289</span>
+        <span class="index">#59</span>
+    </div>
+    <div class="photo-card" data-idx="59" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779877/DSC04290_qqayzy.jpg" data-dsc="DSC04290" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779877/DSC04290_qqayzy.jpg" loading="lazy" alt="DSC04290">
+        <span class="dsc">DSC04290</span>
+        <span class="index">#60</span>
+    </div>
+    <div class="photo-card" data-idx="60" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779876/DSC04291_csfufc.jpg" data-dsc="DSC04291" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779876/DSC04291_csfufc.jpg" loading="lazy" alt="DSC04291">
+        <span class="dsc">DSC04291</span>
+        <span class="index">#61</span>
+    </div>
+    <div class="photo-card" data-idx="61" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779876/DSC04292_oyg6dt.jpg" data-dsc="DSC04292" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779876/DSC04292_oyg6dt.jpg" loading="lazy" alt="DSC04292">
+        <span class="dsc">DSC04292</span>
+        <span class="index">#62</span>
+    </div>
+    <div class="photo-card" data-idx="62" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779877/DSC04293_c9yft0.jpg" data-dsc="DSC04293" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779877/DSC04293_c9yft0.jpg" loading="lazy" alt="DSC04293">
+        <span class="dsc">DSC04293</span>
+        <span class="index">#63</span>
+    </div>
+    <div class="photo-card" data-idx="63" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779877/DSC04294_raibvu.jpg" data-dsc="DSC04294" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779877/DSC04294_raibvu.jpg" loading="lazy" alt="DSC04294">
+        <span class="dsc">DSC04294</span>
+        <span class="index">#64</span>
+    </div>
+    <div class="photo-card" data-idx="64" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779877/DSC04295_gv8qvi.jpg" data-dsc="DSC04295" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779877/DSC04295_gv8qvi.jpg" loading="lazy" alt="DSC04295">
+        <span class="dsc">DSC04295</span>
+        <span class="index">#65</span>
+    </div>
+    <div class="photo-card" data-idx="65" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779878/DSC04296_ht5kgh.jpg" data-dsc="DSC04296" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779878/DSC04296_ht5kgh.jpg" loading="lazy" alt="DSC04296">
+        <span class="dsc">DSC04296</span>
+        <span class="index">#66</span>
+    </div>
+    <div class="photo-card" data-idx="66" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779884/DSC04298_hmttjg.jpg" data-dsc="DSC04298" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779884/DSC04298_hmttjg.jpg" loading="lazy" alt="DSC04298">
+        <span class="dsc">DSC04298</span>
+        <span class="index">#67</span>
+    </div>
+    <div class="photo-card" data-idx="67" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779885/DSC04300_nfwvnc.jpg" data-dsc="DSC04300" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779885/DSC04300_nfwvnc.jpg" loading="lazy" alt="DSC04300">
+        <span class="dsc">DSC04300</span>
+        <span class="index">#68</span>
+    </div>
+    <div class="photo-card" data-idx="68" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779885/DSC04301_ii5gtg.jpg" data-dsc="DSC04301" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779885/DSC04301_ii5gtg.jpg" loading="lazy" alt="DSC04301">
+        <span class="dsc">DSC04301</span>
+        <span class="index">#69</span>
+    </div>
+    <div class="photo-card" data-idx="69" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779885/DSC04303_khetfs.jpg" data-dsc="DSC04303" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779885/DSC04303_khetfs.jpg" loading="lazy" alt="DSC04303">
+        <span class="dsc">DSC04303</span>
+        <span class="index">#70</span>
+    </div>
+    <div class="photo-card" data-idx="70" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779885/DSC04307_pjkwiz.jpg" data-dsc="DSC04307" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779885/DSC04307_pjkwiz.jpg" loading="lazy" alt="DSC04307">
+        <span class="dsc">DSC04307</span>
+        <span class="index">#71</span>
+    </div>
+    <div class="photo-card" data-idx="71" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779885/DSC04308_t8deob.jpg" data-dsc="DSC04308" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779885/DSC04308_t8deob.jpg" loading="lazy" alt="DSC04308">
+        <span class="dsc">DSC04308</span>
+        <span class="index">#72</span>
+    </div>
+    <div class="photo-card" data-idx="72" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779885/DSC04309_yzhp8o.jpg" data-dsc="DSC04309" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779885/DSC04309_yzhp8o.jpg" loading="lazy" alt="DSC04309">
+        <span class="dsc">DSC04309</span>
+        <span class="index">#73</span>
+    </div>
+    <div class="photo-card" data-idx="73" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779886/DSC04310_kd2oai.jpg" data-dsc="DSC04310" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779886/DSC04310_kd2oai.jpg" loading="lazy" alt="DSC04310">
+        <span class="dsc">DSC04310</span>
+        <span class="index">#74</span>
+    </div>
+    <div class="photo-card" data-idx="74" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779886/DSC04311_upevtt.jpg" data-dsc="DSC04311" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779886/DSC04311_upevtt.jpg" loading="lazy" alt="DSC04311">
+        <span class="dsc">DSC04311</span>
+        <span class="index">#75</span>
+    </div>
+    <div class="photo-card" data-idx="75" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779886/DSC04312_w2mowe.jpg" data-dsc="DSC04312" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779886/DSC04312_w2mowe.jpg" loading="lazy" alt="DSC04312">
+        <span class="dsc">DSC04312</span>
+        <span class="index">#76</span>
+    </div>
+    <div class="photo-card" data-idx="76" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779886/DSC04313_dfiek4.jpg" data-dsc="DSC04313" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779886/DSC04313_dfiek4.jpg" loading="lazy" alt="DSC04313">
+        <span class="dsc">DSC04313</span>
+        <span class="index">#77</span>
+    </div>
+    <div class="photo-card" data-idx="77" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779886/DSC04314_ls1omf.jpg" data-dsc="DSC04314" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779886/DSC04314_ls1omf.jpg" loading="lazy" alt="DSC04314">
+        <span class="dsc">DSC04314</span>
+        <span class="index">#78</span>
+    </div>
+    <div class="photo-card" data-idx="78" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779887/DSC04315_u0qzrq.jpg" data-dsc="DSC04315" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779887/DSC04315_u0qzrq.jpg" loading="lazy" alt="DSC04315">
+        <span class="dsc">DSC04315</span>
+        <span class="index">#79</span>
+    </div>
+    <div class="photo-card" data-idx="79" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779887/DSC04316_ljltxu.jpg" data-dsc="DSC04316" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779887/DSC04316_ljltxu.jpg" loading="lazy" alt="DSC04316">
+        <span class="dsc">DSC04316</span>
+        <span class="index">#80</span>
+    </div>
+    <div class="photo-card" data-idx="80" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779887/DSC04317_jikvgr.jpg" data-dsc="DSC04317" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779887/DSC04317_jikvgr.jpg" loading="lazy" alt="DSC04317">
+        <span class="dsc">DSC04317</span>
+        <span class="index">#81</span>
+    </div>
+    <div class="photo-card" data-idx="81" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779888/DSC04318_qqip1w.jpg" data-dsc="DSC04318" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779888/DSC04318_qqip1w.jpg" loading="lazy" alt="DSC04318">
+        <span class="dsc">DSC04318</span>
+        <span class="index">#82</span>
+    </div>
+    <div class="photo-card" data-idx="82" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779908/DSC04319_cshigf.jpg" data-dsc="DSC04319" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779908/DSC04319_cshigf.jpg" loading="lazy" alt="DSC04319">
+        <span class="dsc">DSC04319</span>
+        <span class="index">#83</span>
+    </div>
+    <div class="photo-card" data-idx="83" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779937/DSC04320_kpkhix.jpg" data-dsc="DSC04320" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779937/DSC04320_kpkhix.jpg" loading="lazy" alt="DSC04320">
+        <span class="dsc">DSC04320</span>
+        <span class="index">#84</span>
+    </div>
+    <div class="photo-card" data-idx="84" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779977/DSC04321_omlbzu.jpg" data-dsc="DSC04321" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779977/DSC04321_omlbzu.jpg" loading="lazy" alt="DSC04321">
+        <span class="dsc">DSC04321</span>
+        <span class="index">#85</span>
+    </div>
+    <div class="photo-card" data-idx="85" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779977/DSC04322_vme5by.jpg" data-dsc="DSC04322" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779977/DSC04322_vme5by.jpg" loading="lazy" alt="DSC04322">
+        <span class="dsc">DSC04322</span>
+        <span class="index">#86</span>
+    </div>
+    <div class="photo-card" data-idx="86" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779977/DSC04325_hlmmmx.jpg" data-dsc="DSC04325" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779977/DSC04325_hlmmmx.jpg" loading="lazy" alt="DSC04325">
+        <span class="dsc">DSC04325</span>
+        <span class="index">#87</span>
+    </div>
+    <div class="photo-card" data-idx="87" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779978/DSC04326_rkwdto.jpg" data-dsc="DSC04326" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779978/DSC04326_rkwdto.jpg" loading="lazy" alt="DSC04326">
+        <span class="dsc">DSC04326</span>
+        <span class="index">#88</span>
+    </div>
+    <div class="photo-card" data-idx="88" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779978/DSC04327_qrsyzt.jpg" data-dsc="DSC04327" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779978/DSC04327_qrsyzt.jpg" loading="lazy" alt="DSC04327">
+        <span class="dsc">DSC04327</span>
+        <span class="index">#89</span>
+    </div>
+    <div class="photo-card" data-idx="89" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779978/DSC04328_lacbfz.jpg" data-dsc="DSC04328" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779978/DSC04328_lacbfz.jpg" loading="lazy" alt="DSC04328">
+        <span class="dsc">DSC04328</span>
+        <span class="index">#90</span>
+    </div>
+    <div class="photo-card" data-idx="90" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779978/DSC04330_bpj9eg.jpg" data-dsc="DSC04330" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779978/DSC04330_bpj9eg.jpg" loading="lazy" alt="DSC04330">
+        <span class="dsc">DSC04330</span>
+        <span class="index">#91</span>
+    </div>
+    <div class="photo-card" data-idx="91" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779978/DSC04331_iedz2x.jpg" data-dsc="DSC04331" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779978/DSC04331_iedz2x.jpg" loading="lazy" alt="DSC04331">
+        <span class="dsc">DSC04331</span>
+        <span class="index">#92</span>
+    </div>
+    <div class="photo-card" data-idx="92" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779978/DSC04332_fdu6l4.jpg" data-dsc="DSC04332" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779978/DSC04332_fdu6l4.jpg" loading="lazy" alt="DSC04332">
+        <span class="dsc">DSC04332</span>
+        <span class="index">#93</span>
+    </div>
+    <div class="photo-card" data-idx="93" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779979/DSC04333_ptan7m.jpg" data-dsc="DSC04333" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779979/DSC04333_ptan7m.jpg" loading="lazy" alt="DSC04333">
+        <span class="dsc">DSC04333</span>
+        <span class="index">#94</span>
+    </div>
+    <div class="photo-card" data-idx="94" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779979/DSC04335_pj1roe.jpg" data-dsc="DSC04335" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779979/DSC04335_pj1roe.jpg" loading="lazy" alt="DSC04335">
+        <span class="dsc">DSC04335</span>
+        <span class="index">#95</span>
+    </div>
+    <div class="photo-card" data-idx="95" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779979/DSC04354_rtxlcu.jpg" data-dsc="DSC04354" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779979/DSC04354_rtxlcu.jpg" loading="lazy" alt="DSC04354">
+        <span class="dsc">DSC04354</span>
+        <span class="index">#96</span>
+    </div>
+    <div class="photo-card" data-idx="96" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779979/DSC04356_yuir9o.jpg" data-dsc="DSC04356" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779979/DSC04356_yuir9o.jpg" loading="lazy" alt="DSC04356">
+        <span class="dsc">DSC04356</span>
+        <span class="index">#97</span>
+    </div>
+    <div class="photo-card" data-idx="97" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779979/DSC04358_cyvp5t.jpg" data-dsc="DSC04358" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779979/DSC04358_cyvp5t.jpg" loading="lazy" alt="DSC04358">
+        <span class="dsc">DSC04358</span>
+        <span class="index">#98</span>
+    </div>
+    <div class="photo-card" data-idx="98" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779980/DSC04367_bxopfi.jpg" data-dsc="DSC04367" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779980/DSC04367_bxopfi.jpg" loading="lazy" alt="DSC04367">
+        <span class="dsc">DSC04367</span>
+        <span class="index">#99</span>
+    </div>
+    <div class="photo-card" data-idx="99" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779988/DSC04369_lwdpmh.jpg" data-dsc="DSC04369" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779988/DSC04369_lwdpmh.jpg" loading="lazy" alt="DSC04369">
+        <span class="dsc">DSC04369</span>
+        <span class="index">#100</span>
+    </div>
+    <div class="photo-card" data-idx="100" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779988/DSC04370_d2xexs.jpg" data-dsc="DSC04370" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779988/DSC04370_d2xexs.jpg" loading="lazy" alt="DSC04370">
+        <span class="dsc">DSC04370</span>
+        <span class="index">#101</span>
+    </div>
+    <div class="photo-card" data-idx="101" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779988/DSC04371_fue41n.jpg" data-dsc="DSC04371" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779988/DSC04371_fue41n.jpg" loading="lazy" alt="DSC04371">
+        <span class="dsc">DSC04371</span>
+        <span class="index">#102</span>
+    </div>
+    <div class="photo-card" data-idx="102" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779988/DSC04373_fsyo9a.jpg" data-dsc="DSC04373" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779988/DSC04373_fsyo9a.jpg" loading="lazy" alt="DSC04373">
+        <span class="dsc">DSC04373</span>
+        <span class="index">#103</span>
+    </div>
+    <div class="photo-card" data-idx="103" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779988/DSC04376_twy30a.jpg" data-dsc="DSC04376" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779988/DSC04376_twy30a.jpg" loading="lazy" alt="DSC04376">
+        <span class="dsc">DSC04376</span>
+        <span class="index">#104</span>
+    </div>
+    <div class="photo-card" data-idx="104" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779988/DSC04377_q18fcq.jpg" data-dsc="DSC04377" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779988/DSC04377_q18fcq.jpg" loading="lazy" alt="DSC04377">
+        <span class="dsc">DSC04377</span>
+        <span class="index">#105</span>
+    </div>
+    <div class="photo-card" data-idx="105" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779989/DSC04379_akdpjw.jpg" data-dsc="DSC04379" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779989/DSC04379_akdpjw.jpg" loading="lazy" alt="DSC04379">
+        <span class="dsc">DSC04379</span>
+        <span class="index">#106</span>
+    </div>
+    <div class="photo-card" data-idx="106" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779989/DSC04380_nadqmu.jpg" data-dsc="DSC04380" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779989/DSC04380_nadqmu.jpg" loading="lazy" alt="DSC04380">
+        <span class="dsc">DSC04380</span>
+        <span class="index">#107</span>
+    </div>
+    <div class="photo-card" data-idx="107" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779989/DSC04382_bu0xll.jpg" data-dsc="DSC04382" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779989/DSC04382_bu0xll.jpg" loading="lazy" alt="DSC04382">
+        <span class="dsc">DSC04382</span>
+        <span class="index">#108</span>
+    </div>
+    <div class="photo-card" data-idx="108" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779989/DSC04390_rfhon7.jpg" data-dsc="DSC04390" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779989/DSC04390_rfhon7.jpg" loading="lazy" alt="DSC04390">
+        <span class="dsc">DSC04390</span>
+        <span class="index">#109</span>
+    </div>
+    <div class="photo-card" data-idx="109" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779989/DSC04391_jelxws.jpg" data-dsc="DSC04391" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779989/DSC04391_jelxws.jpg" loading="lazy" alt="DSC04391">
+        <span class="dsc">DSC04391</span>
+        <span class="index">#110</span>
+    </div>
+    <div class="photo-card" data-idx="110" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779989/DSC04399_u8q5ww.jpg" data-dsc="DSC04399" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779989/DSC04399_u8q5ww.jpg" loading="lazy" alt="DSC04399">
+        <span class="dsc">DSC04399</span>
+        <span class="index">#111</span>
+    </div>
+    <div class="photo-card" data-idx="111" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779990/DSC04400_blykg1.jpg" data-dsc="DSC04400" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779990/DSC04400_blykg1.jpg" loading="lazy" alt="DSC04400">
+        <span class="dsc">DSC04400</span>
+        <span class="index">#112</span>
+    </div>
+    <div class="photo-card" data-idx="112" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779990/DSC04402_g8rxb0.jpg" data-dsc="DSC04402" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779990/DSC04402_g8rxb0.jpg" loading="lazy" alt="DSC04402">
+        <span class="dsc">DSC04402</span>
+        <span class="index">#113</span>
+    </div>
+    <div class="photo-card" data-idx="113" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779990/DSC04404_ihfeyq.jpg" data-dsc="DSC04404" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779990/DSC04404_ihfeyq.jpg" loading="lazy" alt="DSC04404">
+        <span class="dsc">DSC04404</span>
+        <span class="index">#114</span>
+    </div>
+    <div class="photo-card" data-idx="114" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779991/DSC04415_vdstpz.jpg" data-dsc="DSC04415" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779991/DSC04415_vdstpz.jpg" loading="lazy" alt="DSC04415">
+        <span class="dsc">DSC04415</span>
+        <span class="index">#115</span>
+    </div>
+    <div class="photo-card" data-idx="115" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779997/DSC04416_pl3c9q.jpg" data-dsc="DSC04416" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779997/DSC04416_pl3c9q.jpg" loading="lazy" alt="DSC04416">
+        <span class="dsc">DSC04416</span>
+        <span class="index">#116</span>
+    </div>
+    <div class="photo-card" data-idx="116" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779999/DSC04417_lhny9e.jpg" data-dsc="DSC04417" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779999/DSC04417_lhny9e.jpg" loading="lazy" alt="DSC04417">
+        <span class="dsc">DSC04417</span>
+        <span class="index">#117</span>
+    </div>
+    <div class="photo-card" data-idx="117" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779999/DSC04418_xff8xc.jpg" data-dsc="DSC04418" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779999/DSC04418_xff8xc.jpg" loading="lazy" alt="DSC04418">
+        <span class="dsc">DSC04418</span>
+        <span class="index">#118</span>
+    </div>
+    <div class="photo-card" data-idx="118" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780001/DSC04419_xtiksd.jpg" data-dsc="DSC04419" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780001/DSC04419_xtiksd.jpg" loading="lazy" alt="DSC04419">
+        <span class="dsc">DSC04419</span>
+        <span class="index">#119</span>
+    </div>
+    <div class="photo-card" data-idx="119" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780000/DSC04420_zg0ku7.jpg" data-dsc="DSC04420" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780000/DSC04420_zg0ku7.jpg" loading="lazy" alt="DSC04420">
+        <span class="dsc">DSC04420</span>
+        <span class="index">#120</span>
+    </div>
+    <div class="photo-card" data-idx="120" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780000/DSC04425_qadflz.jpg" data-dsc="DSC04425" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780000/DSC04425_qadflz.jpg" loading="lazy" alt="DSC04425">
+        <span class="dsc">DSC04425</span>
+        <span class="index">#121</span>
+    </div>
+    <div class="photo-card" data-idx="121" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780001/DSC04426_y9htiy.jpg" data-dsc="DSC04426" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780001/DSC04426_y9htiy.jpg" loading="lazy" alt="DSC04426">
+        <span class="dsc">DSC04426</span>
+        <span class="index">#122</span>
+    </div>
+    <div class="photo-card" data-idx="122" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780001/DSC04427_ntwdob.jpg" data-dsc="DSC04427" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780001/DSC04427_ntwdob.jpg" loading="lazy" alt="DSC04427">
+        <span class="dsc">DSC04427</span>
+        <span class="index">#123</span>
+    </div>
+    <div class="photo-card" data-idx="123" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780001/DSC04428_bxm2qf.jpg" data-dsc="DSC04428" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780001/DSC04428_bxm2qf.jpg" loading="lazy" alt="DSC04428">
+        <span class="dsc">DSC04428</span>
+        <span class="index">#124</span>
+    </div>
+    <div class="photo-card" data-idx="124" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780002/DSC04430_kkvs6j.jpg" data-dsc="DSC04430" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780002/DSC04430_kkvs6j.jpg" loading="lazy" alt="DSC04430">
+        <span class="dsc">DSC04430</span>
+        <span class="index">#125</span>
+    </div>
+    <div class="photo-card" data-idx="125" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780002/DSC04431_xxwelb.jpg" data-dsc="DSC04431" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780002/DSC04431_xxwelb.jpg" loading="lazy" alt="DSC04431">
+        <span class="dsc">DSC04431</span>
+        <span class="index">#126</span>
+    </div>
+    <div class="photo-card" data-idx="126" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780003/DSC04432_kfmwta.jpg" data-dsc="DSC04432" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780003/DSC04432_kfmwta.jpg" loading="lazy" alt="DSC04432">
+        <span class="dsc">DSC04432</span>
+        <span class="index">#127</span>
+    </div>
+    <div class="photo-card" data-idx="127" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780003/DSC04433_lemgcv.jpg" data-dsc="DSC04433" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780003/DSC04433_lemgcv.jpg" loading="lazy" alt="DSC04433">
+        <span class="dsc">DSC04433</span>
+        <span class="index">#128</span>
+    </div>
+    <div class="photo-card" data-idx="128" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780003/DSC04434_bjhzvu.jpg" data-dsc="DSC04434" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780003/DSC04434_bjhzvu.jpg" loading="lazy" alt="DSC04434">
+        <span class="dsc">DSC04434</span>
+        <span class="index">#129</span>
+    </div>
+    <div class="photo-card" data-idx="129" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780003/DSC04435_softlp.jpg" data-dsc="DSC04435" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780003/DSC04435_softlp.jpg" loading="lazy" alt="DSC04435">
+        <span class="dsc">DSC04435</span>
+        <span class="index">#130</span>
+    </div>
+    <div class="photo-card" data-idx="130" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780003/DSC04436_e4ie7w.jpg" data-dsc="DSC04436" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780003/DSC04436_e4ie7w.jpg" loading="lazy" alt="DSC04436">
+        <span class="dsc">DSC04436</span>
+        <span class="index">#131</span>
+    </div>
+    <div class="photo-card" data-idx="131" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780011/DSC04437_n4lnyx.jpg" data-dsc="DSC04437" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780011/DSC04437_n4lnyx.jpg" loading="lazy" alt="DSC04437">
+        <span class="dsc">DSC04437</span>
+        <span class="index">#132</span>
+    </div>
+    <div class="photo-card" data-idx="132" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780011/DSC04438_pxirhi.jpg" data-dsc="DSC04438" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780011/DSC04438_pxirhi.jpg" loading="lazy" alt="DSC04438">
+        <span class="dsc">DSC04438</span>
+        <span class="index">#133</span>
+    </div>
+    <div class="photo-card" data-idx="133" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780012/DSC04439_ymrjgh.jpg" data-dsc="DSC04439" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780012/DSC04439_ymrjgh.jpg" loading="lazy" alt="DSC04439">
+        <span class="dsc">DSC04439</span>
+        <span class="index">#134</span>
+    </div>
+    <div class="photo-card" data-idx="134" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780012/DSC04440_koyq5y.jpg" data-dsc="DSC04440" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780012/DSC04440_koyq5y.jpg" loading="lazy" alt="DSC04440">
+        <span class="dsc">DSC04440</span>
+        <span class="index">#135</span>
+    </div>
+    <div class="photo-card" data-idx="135" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780012/DSC04441_dga4ok.jpg" data-dsc="DSC04441" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780012/DSC04441_dga4ok.jpg" loading="lazy" alt="DSC04441">
+        <span class="dsc">DSC04441</span>
+        <span class="index">#136</span>
+    </div>
+    <div class="photo-card" data-idx="136" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780012/DSC04442_ewuijm.jpg" data-dsc="DSC04442" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780012/DSC04442_ewuijm.jpg" loading="lazy" alt="DSC04442">
+        <span class="dsc">DSC04442</span>
+        <span class="index">#137</span>
+    </div>
+    <div class="photo-card" data-idx="137" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780012/DSC04445_gxflvy.jpg" data-dsc="DSC04445" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780012/DSC04445_gxflvy.jpg" loading="lazy" alt="DSC04445">
+        <span class="dsc">DSC04445</span>
+        <span class="index">#138</span>
+    </div>
+    <div class="photo-card" data-idx="138" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780013/DSC04447_dwxayv.jpg" data-dsc="DSC04447" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780013/DSC04447_dwxayv.jpg" loading="lazy" alt="DSC04447">
+        <span class="dsc">DSC04447</span>
+        <span class="index">#139</span>
+    </div>
+    <div class="photo-card" data-idx="139" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780013/DSC04452_kod0we.jpg" data-dsc="DSC04452" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780013/DSC04452_kod0we.jpg" loading="lazy" alt="DSC04452">
+        <span class="dsc">DSC04452</span>
+        <span class="index">#140</span>
+    </div>
+    <div class="photo-card" data-idx="140" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780013/DSC04453_mgwwze.jpg" data-dsc="DSC04453" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780013/DSC04453_mgwwze.jpg" loading="lazy" alt="DSC04453">
+        <span class="dsc">DSC04453</span>
+        <span class="index">#141</span>
+    </div>
+    <div class="photo-card" data-idx="141" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780013/DSC04454_gg8fda.jpg" data-dsc="DSC04454" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780013/DSC04454_gg8fda.jpg" loading="lazy" alt="DSC04454">
+        <span class="dsc">DSC04454</span>
+        <span class="index">#142</span>
+    </div>
+    <div class="photo-card" data-idx="142" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780013/DSC04456_dqwq6i.jpg" data-dsc="DSC04456" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780013/DSC04456_dqwq6i.jpg" loading="lazy" alt="DSC04456">
+        <span class="dsc">DSC04456</span>
+        <span class="index">#143</span>
+    </div>
+    <div class="photo-card" data-idx="143" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780013/DSC04457_cc9dzj.jpg" data-dsc="DSC04457" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780013/DSC04457_cc9dzj.jpg" loading="lazy" alt="DSC04457">
+        <span class="dsc">DSC04457</span>
+        <span class="index">#144</span>
+    </div>
+    <div class="photo-card" data-idx="144" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780014/DSC04458_lpx75d.jpg" data-dsc="DSC04458" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780014/DSC04458_lpx75d.jpg" loading="lazy" alt="DSC04458">
+        <span class="dsc">DSC04458</span>
+        <span class="index">#145</span>
+    </div>
+    <div class="photo-card" data-idx="145" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780014/DSC04468_dkldsj.jpg" data-dsc="DSC04468" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780014/DSC04468_dkldsj.jpg" loading="lazy" alt="DSC04468">
+        <span class="dsc">DSC04468</span>
+        <span class="index">#146</span>
+    </div>
+    <div class="photo-card" data-idx="146" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780014/DSC04469_ysipyt.jpg" data-dsc="DSC04469" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780014/DSC04469_ysipyt.jpg" loading="lazy" alt="DSC04469">
+        <span class="dsc">DSC04469</span>
+        <span class="index">#147</span>
+    </div>
+    <div class="photo-card" data-idx="147" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780015/DSC04470_w5g8a3.jpg" data-dsc="DSC04470" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780015/DSC04470_w5g8a3.jpg" loading="lazy" alt="DSC04470">
+        <span class="dsc">DSC04470</span>
+        <span class="index">#148</span>
+    </div>
+    <div class="photo-card" data-idx="148" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780025/DSC04472_c3pxen.jpg" data-dsc="DSC04472" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780025/DSC04472_c3pxen.jpg" loading="lazy" alt="DSC04472">
+        <span class="dsc">DSC04472</span>
+        <span class="index">#149</span>
+    </div>
+    <div class="photo-card" data-idx="149" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780025/DSC04473_jhqosq.jpg" data-dsc="DSC04473" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780025/DSC04473_jhqosq.jpg" loading="lazy" alt="DSC04473">
+        <span class="dsc">DSC04473</span>
+        <span class="index">#150</span>
+    </div>
+    <div class="photo-card" data-idx="150" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780024/DSC04474_zrnmil.jpg" data-dsc="DSC04474" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780024/DSC04474_zrnmil.jpg" loading="lazy" alt="DSC04474">
+        <span class="dsc">DSC04474</span>
+        <span class="index">#151</span>
+    </div>
+    <div class="photo-card" data-idx="151" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780025/DSC04475_jpka4b.jpg" data-dsc="DSC04475" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780025/DSC04475_jpka4b.jpg" loading="lazy" alt="DSC04475">
+        <span class="dsc">DSC04475</span>
+        <span class="index">#152</span>
+    </div>
+    <div class="photo-card" data-idx="152" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780025/DSC04476_f3yhaq.jpg" data-dsc="DSC04476" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780025/DSC04476_f3yhaq.jpg" loading="lazy" alt="DSC04476">
+        <span class="dsc">DSC04476</span>
+        <span class="index">#153</span>
+    </div>
+    <div class="photo-card" data-idx="153" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780025/DSC04478_wnosgi.jpg" data-dsc="DSC04478" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780025/DSC04478_wnosgi.jpg" loading="lazy" alt="DSC04478">
+        <span class="dsc">DSC04478</span>
+        <span class="index">#154</span>
+    </div>
+    <div class="photo-card" data-idx="154" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780026/DSC04479_jt1adi.jpg" data-dsc="DSC04479" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780026/DSC04479_jt1adi.jpg" loading="lazy" alt="DSC04479">
+        <span class="dsc">DSC04479</span>
+        <span class="index">#155</span>
+    </div>
+    <div class="photo-card" data-idx="155" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780025/DSC04480_cz3sos.jpg" data-dsc="DSC04480" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780025/DSC04480_cz3sos.jpg" loading="lazy" alt="DSC04480">
+        <span class="dsc">DSC04480</span>
+        <span class="index">#156</span>
+    </div>
+    <div class="photo-card" data-idx="156" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780026/DSC04481_rpnqcw.jpg" data-dsc="DSC04481" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780026/DSC04481_rpnqcw.jpg" loading="lazy" alt="DSC04481">
+        <span class="dsc">DSC04481</span>
+        <span class="index">#157</span>
+    </div>
+    <div class="photo-card" data-idx="157" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780028/DSC04482_gaqgqi.jpg" data-dsc="DSC04482" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780028/DSC04482_gaqgqi.jpg" loading="lazy" alt="DSC04482">
+        <span class="dsc">DSC04482</span>
+        <span class="index">#158</span>
+    </div>
+    <div class="photo-card" data-idx="158" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780027/DSC04483_hzijbq.jpg" data-dsc="DSC04483" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780027/DSC04483_hzijbq.jpg" loading="lazy" alt="DSC04483">
+        <span class="dsc">DSC04483</span>
+        <span class="index">#159</span>
+    </div>
+    <div class="photo-card" data-idx="159" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780026/DSC04484_bikcrk.jpg" data-dsc="DSC04484" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780026/DSC04484_bikcrk.jpg" loading="lazy" alt="DSC04484">
+        <span class="dsc">DSC04484</span>
+        <span class="index">#160</span>
+    </div>
+    <div class="photo-card" data-idx="160" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780027/DSC04485_amt1zm.jpg" data-dsc="DSC04485" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780027/DSC04485_amt1zm.jpg" loading="lazy" alt="DSC04485">
+        <span class="dsc">DSC04485</span>
+        <span class="index">#161</span>
+    </div>
+    <div class="photo-card" data-idx="161" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780026/DSC04486_wpp27s.jpg" data-dsc="DSC04486" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780026/DSC04486_wpp27s.jpg" loading="lazy" alt="DSC04486">
+        <span class="dsc">DSC04486</span>
+        <span class="index">#162</span>
+    </div>
+    <div class="photo-card" data-idx="162" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780027/DSC04488_lufrqe.jpg" data-dsc="DSC04488" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780027/DSC04488_lufrqe.jpg" loading="lazy" alt="DSC04488">
+        <span class="dsc">DSC04488</span>
+        <span class="index">#163</span>
+    </div>
+    <div class="photo-card" data-idx="163" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780028/DSC04492_fpanwn.jpg" data-dsc="DSC04492" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780028/DSC04492_fpanwn.jpg" loading="lazy" alt="DSC04492">
+        <span class="dsc">DSC04492</span>
+        <span class="index">#164</span>
+    </div>
+    <div class="photo-card" data-idx="164" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780037/DSC04493_yhkmql.jpg" data-dsc="DSC04493" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780037/DSC04493_yhkmql.jpg" loading="lazy" alt="DSC04493">
+        <span class="dsc">DSC04493</span>
+        <span class="index">#165</span>
+    </div>
+    <div class="photo-card" data-idx="165" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780038/DSC04494_f6ucxf.jpg" data-dsc="DSC04494" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780038/DSC04494_f6ucxf.jpg" loading="lazy" alt="DSC04494">
+        <span class="dsc">DSC04494</span>
+        <span class="index">#166</span>
+    </div>
+    <div class="photo-card" data-idx="166" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780037/DSC04495_uj6khg.jpg" data-dsc="DSC04495" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780037/DSC04495_uj6khg.jpg" loading="lazy" alt="DSC04495">
+        <span class="dsc">DSC04495</span>
+        <span class="index">#167</span>
+    </div>
+    <div class="photo-card" data-idx="167" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780037/DSC04500_i5wiyx.jpg" data-dsc="DSC04500" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780037/DSC04500_i5wiyx.jpg" loading="lazy" alt="DSC04500">
+        <span class="dsc">DSC04500</span>
+        <span class="index">#168</span>
+    </div>
+    <div class="photo-card" data-idx="168" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780038/DSC04501_wkdodm.jpg" data-dsc="DSC04501" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780038/DSC04501_wkdodm.jpg" loading="lazy" alt="DSC04501">
+        <span class="dsc">DSC04501</span>
+        <span class="index">#169</span>
+    </div>
+    <div class="photo-card" data-idx="169" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780038/DSC04502_qadhqm.jpg" data-dsc="DSC04502" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780038/DSC04502_qadhqm.jpg" loading="lazy" alt="DSC04502">
+        <span class="dsc">DSC04502</span>
+        <span class="index">#170</span>
+    </div>
+    <div class="photo-card" data-idx="170" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780039/DSC04503_sl6lys.jpg" data-dsc="DSC04503" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780039/DSC04503_sl6lys.jpg" loading="lazy" alt="DSC04503">
+        <span class="dsc">DSC04503</span>
+        <span class="index">#171</span>
+    </div>
+    <div class="photo-card" data-idx="171" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780039/DSC04504_tvc4pm.jpg" data-dsc="DSC04504" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780039/DSC04504_tvc4pm.jpg" loading="lazy" alt="DSC04504">
+        <span class="dsc">DSC04504</span>
+        <span class="index">#172</span>
+    </div>
+    <div class="photo-card" data-idx="172" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780039/DSC04505_oeg1d8.jpg" data-dsc="DSC04505" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780039/DSC04505_oeg1d8.jpg" loading="lazy" alt="DSC04505">
+        <span class="dsc">DSC04505</span>
+        <span class="index">#173</span>
+    </div>
+    <div class="photo-card" data-idx="173" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780040/DSC04506_x2lmew.jpg" data-dsc="DSC04506" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780040/DSC04506_x2lmew.jpg" loading="lazy" alt="DSC04506">
+        <span class="dsc">DSC04506</span>
+        <span class="index">#174</span>
+    </div>
+    <div class="photo-card" data-idx="174" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780041/DSC04507_u8tncs.jpg" data-dsc="DSC04507" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780041/DSC04507_u8tncs.jpg" loading="lazy" alt="DSC04507">
+        <span class="dsc">DSC04507</span>
+        <span class="index">#175</span>
+    </div>
+    <div class="photo-card" data-idx="175" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780042/DSC04508_qgtdvd.jpg" data-dsc="DSC04508" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780042/DSC04508_qgtdvd.jpg" loading="lazy" alt="DSC04508">
+        <span class="dsc">DSC04508</span>
+        <span class="index">#176</span>
+    </div>
+    <div class="photo-card" data-idx="176" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780039/DSC04509_awvx6r.jpg" data-dsc="DSC04509" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780039/DSC04509_awvx6r.jpg" loading="lazy" alt="DSC04509">
+        <span class="dsc">DSC04509</span>
+        <span class="index">#177</span>
+    </div>
+    <div class="photo-card" data-idx="177" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780040/DSC04510_sd4pgj.jpg" data-dsc="DSC04510" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780040/DSC04510_sd4pgj.jpg" loading="lazy" alt="DSC04510">
+        <span class="dsc">DSC04510</span>
+        <span class="index">#178</span>
+    </div>
+    <div class="photo-card" data-idx="178" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780041/DSC04511_xu2p5p.jpg" data-dsc="DSC04511" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780041/DSC04511_xu2p5p.jpg" loading="lazy" alt="DSC04511">
+        <span class="dsc">DSC04511</span>
+        <span class="index">#179</span>
+    </div>
+    <div class="photo-card" data-idx="179" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780041/DSC04512_xleag9.jpg" data-dsc="DSC04512" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780041/DSC04512_xleag9.jpg" loading="lazy" alt="DSC04512">
+        <span class="dsc">DSC04512</span>
+        <span class="index">#180</span>
+    </div>
+    <div class="photo-card" data-idx="180" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780041/DSC04513_ulinwq.jpg" data-dsc="DSC04513" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780041/DSC04513_ulinwq.jpg" loading="lazy" alt="DSC04513">
+        <span class="dsc">DSC04513</span>
+        <span class="index">#181</span>
+    </div>
+    <div class="photo-card" data-idx="181" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780041/DSC04515_se2lvk.jpg" data-dsc="DSC04515" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780041/DSC04515_se2lvk.jpg" loading="lazy" alt="DSC04515">
+        <span class="dsc">DSC04515</span>
+        <span class="index">#182</span>
+    </div>
+    <div class="photo-card" data-idx="182" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780042/DSC04516_pd566m.jpg" data-dsc="DSC04516" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780042/DSC04516_pd566m.jpg" loading="lazy" alt="DSC04516">
+        <span class="dsc">DSC04516</span>
+        <span class="index">#183</span>
+    </div>
+    <div class="photo-card" data-idx="183" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780054/DSC04517_wl34ns.jpg" data-dsc="DSC04517" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780054/DSC04517_wl34ns.jpg" loading="lazy" alt="DSC04517">
+        <span class="dsc">DSC04517</span>
+        <span class="index">#184</span>
+    </div>
+    <div class="photo-card" data-idx="184" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780053/DSC04518_wjq9us.jpg" data-dsc="DSC04518" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780053/DSC04518_wjq9us.jpg" loading="lazy" alt="DSC04518">
+        <span class="dsc">DSC04518</span>
+        <span class="index">#185</span>
+    </div>
+    <div class="photo-card" data-idx="185" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780054/DSC04519_kt3hcz.jpg" data-dsc="DSC04519" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780054/DSC04519_kt3hcz.jpg" loading="lazy" alt="DSC04519">
+        <span class="dsc">DSC04519</span>
+        <span class="index">#186</span>
+    </div>
+    <div class="photo-card" data-idx="186" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780054/DSC04520_crulxi.jpg" data-dsc="DSC04520" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780054/DSC04520_crulxi.jpg" loading="lazy" alt="DSC04520">
+        <span class="dsc">DSC04520</span>
+        <span class="index">#187</span>
+    </div>
+    <div class="photo-card" data-idx="187" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780054/DSC04521_rq4int.jpg" data-dsc="DSC04521" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780054/DSC04521_rq4int.jpg" loading="lazy" alt="DSC04521">
+        <span class="dsc">DSC04521</span>
+        <span class="index">#188</span>
+    </div>
+    <div class="photo-card" data-idx="188" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780054/DSC04522_pefvqd.jpg" data-dsc="DSC04522" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780054/DSC04522_pefvqd.jpg" loading="lazy" alt="DSC04522">
+        <span class="dsc">DSC04522</span>
+        <span class="index">#189</span>
+    </div>
+    <div class="photo-card" data-idx="189" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780054/DSC04524_ezokyk.jpg" data-dsc="DSC04524" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780054/DSC04524_ezokyk.jpg" loading="lazy" alt="DSC04524">
+        <span class="dsc">DSC04524</span>
+        <span class="index">#190</span>
+    </div>
+    <div class="photo-card" data-idx="190" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780055/DSC04525_pia0p8.jpg" data-dsc="DSC04525" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780055/DSC04525_pia0p8.jpg" loading="lazy" alt="DSC04525">
+        <span class="dsc">DSC04525</span>
+        <span class="index">#191</span>
+    </div>
+    <div class="photo-card" data-idx="191" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780055/DSC04526_oln5cn.jpg" data-dsc="DSC04526" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780055/DSC04526_oln5cn.jpg" loading="lazy" alt="DSC04526">
+        <span class="dsc">DSC04526</span>
+        <span class="index">#192</span>
+    </div>
+    <div class="photo-card" data-idx="192" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780055/DSC04529_tezh7f.jpg" data-dsc="DSC04529" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780055/DSC04529_tezh7f.jpg" loading="lazy" alt="DSC04529">
+        <span class="dsc">DSC04529</span>
+        <span class="index">#193</span>
+    </div>
+    <div class="photo-card" data-idx="193" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780056/DSC04530_jd1api.jpg" data-dsc="DSC04530" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780056/DSC04530_jd1api.jpg" loading="lazy" alt="DSC04530">
+        <span class="dsc">DSC04530</span>
+        <span class="index">#194</span>
+    </div>
+    <div class="photo-card" data-idx="194" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780055/DSC04531_ib8rt7.jpg" data-dsc="DSC04531" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780055/DSC04531_ib8rt7.jpg" loading="lazy" alt="DSC04531">
+        <span class="dsc">DSC04531</span>
+        <span class="index">#195</span>
+    </div>
+    <div class="photo-card" data-idx="195" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780055/DSC04532_vhn7rb.jpg" data-dsc="DSC04532" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780055/DSC04532_vhn7rb.jpg" loading="lazy" alt="DSC04532">
+        <span class="dsc">DSC04532</span>
+        <span class="index">#196</span>
+    </div>
+    <div class="photo-card" data-idx="196" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780056/DSC04533_gwomix.jpg" data-dsc="DSC04533" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780056/DSC04533_gwomix.jpg" loading="lazy" alt="DSC04533">
+        <span class="dsc">DSC04533</span>
+        <span class="index">#197</span>
+    </div>
+    <div class="photo-card" data-idx="197" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780056/DSC04534_einmea.jpg" data-dsc="DSC04534" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780056/DSC04534_einmea.jpg" loading="lazy" alt="DSC04534">
+        <span class="dsc">DSC04534</span>
+        <span class="index">#198</span>
+    </div>
+    <div class="photo-card" data-idx="198" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780057/DSC04535_vzhbge.jpg" data-dsc="DSC04535" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780057/DSC04535_vzhbge.jpg" loading="lazy" alt="DSC04535">
+        <span class="dsc">DSC04535</span>
+        <span class="index">#199</span>
+    </div>
+    <div class="photo-card" data-idx="199" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780056/DSC04536_ac7hf7.jpg" data-dsc="DSC04536" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780056/DSC04536_ac7hf7.jpg" loading="lazy" alt="DSC04536">
+        <span class="dsc">DSC04536</span>
+        <span class="index">#200</span>
+    </div>
+    <div class="photo-card" data-idx="200" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780057/DSC04537_vwzyqu.jpg" data-dsc="DSC04537" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780057/DSC04537_vwzyqu.jpg" loading="lazy" alt="DSC04537">
+        <span class="dsc">DSC04537</span>
+        <span class="index">#201</span>
+    </div>
+    <div class="photo-card" data-idx="201" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780070/DSC04538_cmeayl.jpg" data-dsc="DSC04538" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780070/DSC04538_cmeayl.jpg" loading="lazy" alt="DSC04538">
+        <span class="dsc">DSC04538</span>
+        <span class="index">#202</span>
+    </div>
+    <div class="photo-card" data-idx="202" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780070/DSC04539_kaeyuw.jpg" data-dsc="DSC04539" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780070/DSC04539_kaeyuw.jpg" loading="lazy" alt="DSC04539">
+        <span class="dsc">DSC04539</span>
+        <span class="index">#203</span>
+    </div>
+    <div class="photo-card" data-idx="203" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780070/DSC04545_u7rgkg.jpg" data-dsc="DSC04545" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780070/DSC04545_u7rgkg.jpg" loading="lazy" alt="DSC04545">
+        <span class="dsc">DSC04545</span>
+        <span class="index">#204</span>
+    </div>
+    <div class="photo-card" data-idx="204" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780070/DSC04546_ocbeye.jpg" data-dsc="DSC04546" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780070/DSC04546_ocbeye.jpg" loading="lazy" alt="DSC04546">
+        <span class="dsc">DSC04546</span>
+        <span class="index">#205</span>
+    </div>
+    <div class="photo-card" data-idx="205" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780071/DSC04547_oywcua.jpg" data-dsc="DSC04547" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780071/DSC04547_oywcua.jpg" loading="lazy" alt="DSC04547">
+        <span class="dsc">DSC04547</span>
+        <span class="index">#206</span>
+    </div>
+    <div class="photo-card" data-idx="206" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780071/DSC04550_1_cv7cgj.jpg" data-dsc="DSC04550" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780071/DSC04550_1_cv7cgj.jpg" loading="lazy" alt="DSC04550">
+        <span class="dsc">DSC04550</span>
+        <span class="index">#207</span>
+    </div>
+    <div class="photo-card" data-idx="207" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780071/DSC04550_gsk5nq.jpg" data-dsc="DSC04550" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780071/DSC04550_gsk5nq.jpg" loading="lazy" alt="DSC04550">
+        <span class="dsc">DSC04550</span>
+        <span class="index">#208</span>
+    </div>
+    <div class="photo-card" data-idx="208" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780072/DSC04551_1_l0frjv.jpg" data-dsc="DSC04551" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780072/DSC04551_1_l0frjv.jpg" loading="lazy" alt="DSC04551">
+        <span class="dsc">DSC04551</span>
+        <span class="index">#209</span>
+    </div>
+    <div class="photo-card" data-idx="209" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780072/DSC04551_n6y1fe.jpg" data-dsc="DSC04551" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780072/DSC04551_n6y1fe.jpg" loading="lazy" alt="DSC04551">
+        <span class="dsc">DSC04551</span>
+        <span class="index">#210</span>
+    </div>
+    <div class="photo-card" data-idx="210" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780072/DSC04552_w4vh6u.jpg" data-dsc="DSC04552" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780072/DSC04552_w4vh6u.jpg" loading="lazy" alt="DSC04552">
+        <span class="dsc">DSC04552</span>
+        <span class="index">#211</span>
+    </div>
+    <div class="photo-card" data-idx="211" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780072/DSC04553_ltgyuz.jpg" data-dsc="DSC04553" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780072/DSC04553_ltgyuz.jpg" loading="lazy" alt="DSC04553">
+        <span class="dsc">DSC04553</span>
+        <span class="index">#212</span>
+    </div>
+    <div class="photo-card" data-idx="212" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780073/DSC04554_xbhpnc.jpg" data-dsc="DSC04554" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780073/DSC04554_xbhpnc.jpg" loading="lazy" alt="DSC04554">
+        <span class="dsc">DSC04554</span>
+        <span class="index">#213</span>
+    </div>
+    <div class="photo-card" data-idx="213" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780073/DSC04556_azvojl.jpg" data-dsc="DSC04556" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780073/DSC04556_azvojl.jpg" loading="lazy" alt="DSC04556">
+        <span class="dsc">DSC04556</span>
+        <span class="index">#214</span>
+    </div>
+    <div class="photo-card" data-idx="214" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780073/DSC04557_c2v8cd.jpg" data-dsc="DSC04557" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780073/DSC04557_c2v8cd.jpg" loading="lazy" alt="DSC04557">
+        <span class="dsc">DSC04557</span>
+        <span class="index">#215</span>
+    </div>
+    <div class="photo-card" data-idx="215" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780073/DSC04558_wpiarl.jpg" data-dsc="DSC04558" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780073/DSC04558_wpiarl.jpg" loading="lazy" alt="DSC04558">
+        <span class="dsc">DSC04558</span>
+        <span class="index">#216</span>
+    </div>
+    <div class="photo-card" data-idx="216" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780073/DSC04559_p1gvxe.jpg" data-dsc="DSC04559" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780073/DSC04559_p1gvxe.jpg" loading="lazy" alt="DSC04559">
+        <span class="dsc">DSC04559</span>
+        <span class="index">#217</span>
+    </div>
+    <div class="photo-card" data-idx="217" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780074/DSC04560_jug7yl.jpg" data-dsc="DSC04560" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780074/DSC04560_jug7yl.jpg" loading="lazy" alt="DSC04560">
+        <span class="dsc">DSC04560</span>
+        <span class="index">#218</span>
+    </div>
+    <div class="photo-card" data-idx="218" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780074/DSC04561_devwzv.jpg" data-dsc="DSC04561" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780074/DSC04561_devwzv.jpg" loading="lazy" alt="DSC04561">
+        <span class="dsc">DSC04561</span>
+        <span class="index">#219</span>
+    </div>
+    <div class="photo-card" data-idx="219" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780087/DSC04562_hbc8ih.jpg" data-dsc="DSC04562" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780087/DSC04562_hbc8ih.jpg" loading="lazy" alt="DSC04562">
+        <span class="dsc">DSC04562</span>
+        <span class="index">#220</span>
+    </div>
+    <div class="photo-card" data-idx="220" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780088/DSC04569_zz3rkt.jpg" data-dsc="DSC04569" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780088/DSC04569_zz3rkt.jpg" loading="lazy" alt="DSC04569">
+        <span class="dsc">DSC04569</span>
+        <span class="index">#221</span>
+    </div>
+    <div class="photo-card" data-idx="221" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780088/DSC04570_bu2hxn.jpg" data-dsc="DSC04570" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780088/DSC04570_bu2hxn.jpg" loading="lazy" alt="DSC04570">
+        <span class="dsc">DSC04570</span>
+        <span class="index">#222</span>
+    </div>
+    <div class="photo-card" data-idx="222" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780088/DSC04571_vbt6yr.jpg" data-dsc="DSC04571" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780088/DSC04571_vbt6yr.jpg" loading="lazy" alt="DSC04571">
+        <span class="dsc">DSC04571</span>
+        <span class="index">#223</span>
+    </div>
+    <div class="photo-card" data-idx="223" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780088/DSC04574_hxrkfk.jpg" data-dsc="DSC04574" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780088/DSC04574_hxrkfk.jpg" loading="lazy" alt="DSC04574">
+        <span class="dsc">DSC04574</span>
+        <span class="index">#224</span>
+    </div>
+    <div class="photo-card" data-idx="224" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780088/DSC04575_sfjuiy.jpg" data-dsc="DSC04575" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780088/DSC04575_sfjuiy.jpg" loading="lazy" alt="DSC04575">
+        <span class="dsc">DSC04575</span>
+        <span class="index">#225</span>
+    </div>
+    <div class="photo-card" data-idx="225" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780088/DSC04576_hkrvei.jpg" data-dsc="DSC04576" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780088/DSC04576_hkrvei.jpg" loading="lazy" alt="DSC04576">
+        <span class="dsc">DSC04576</span>
+        <span class="index">#226</span>
+    </div>
+    <div class="photo-card" data-idx="226" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780089/DSC04577_y1fyax.jpg" data-dsc="DSC04577" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780089/DSC04577_y1fyax.jpg" loading="lazy" alt="DSC04577">
+        <span class="dsc">DSC04577</span>
+        <span class="index">#227</span>
+    </div>
+    <div class="photo-card" data-idx="227" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780089/DSC04578_xvtl0m.jpg" data-dsc="DSC04578" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780089/DSC04578_xvtl0m.jpg" loading="lazy" alt="DSC04578">
+        <span class="dsc">DSC04578</span>
+        <span class="index">#228</span>
+    </div>
+    <div class="photo-card" data-idx="228" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780089/DSC04579_t5vhee.jpg" data-dsc="DSC04579" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780089/DSC04579_t5vhee.jpg" loading="lazy" alt="DSC04579">
+        <span class="dsc">DSC04579</span>
+        <span class="index">#229</span>
+    </div>
+    <div class="photo-card" data-idx="229" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780089/DSC04582_xfrcgo.jpg" data-dsc="DSC04582" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780089/DSC04582_xfrcgo.jpg" loading="lazy" alt="DSC04582">
+        <span class="dsc">DSC04582</span>
+        <span class="index">#230</span>
+    </div>
+    <div class="photo-card" data-idx="230" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780089/DSC04583_ulzyr2.jpg" data-dsc="DSC04583" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780089/DSC04583_ulzyr2.jpg" loading="lazy" alt="DSC04583">
+        <span class="dsc">DSC04583</span>
+        <span class="index">#231</span>
+    </div>
+    <div class="photo-card" data-idx="231" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780089/DSC04584_z25cbh.jpg" data-dsc="DSC04584" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780089/DSC04584_z25cbh.jpg" loading="lazy" alt="DSC04584">
+        <span class="dsc">DSC04584</span>
+        <span class="index">#232</span>
+    </div>
+    <div class="photo-card" data-idx="232" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780090/DSC04585_qvak4w.jpg" data-dsc="DSC04585" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780090/DSC04585_qvak4w.jpg" loading="lazy" alt="DSC04585">
+        <span class="dsc">DSC04585</span>
+        <span class="index">#233</span>
+    </div>
+    <div class="photo-card" data-idx="233" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780090/DSC04595_nu1dkd.jpg" data-dsc="DSC04595" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780090/DSC04595_nu1dkd.jpg" loading="lazy" alt="DSC04595">
+        <span class="dsc">DSC04595</span>
+        <span class="index">#234</span>
+    </div>
+    <div class="photo-card" data-idx="234" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780090/DSC04596_h2vzxs.jpg" data-dsc="DSC04596" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780090/DSC04596_h2vzxs.jpg" loading="lazy" alt="DSC04596">
+        <span class="dsc">DSC04596</span>
+        <span class="index">#235</span>
+    </div>
+    <div class="photo-card" data-idx="235" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780092/DSC04597_alqnqm.jpg" data-dsc="DSC04597" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780092/DSC04597_alqnqm.jpg" loading="lazy" alt="DSC04597">
+        <span class="dsc">DSC04597</span>
+        <span class="index">#236</span>
+    </div>
+    <div class="photo-card" data-idx="236" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780105/DSC04598_ec5r83.jpg" data-dsc="DSC04598" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780105/DSC04598_ec5r83.jpg" loading="lazy" alt="DSC04598">
+        <span class="dsc">DSC04598</span>
+        <span class="index">#237</span>
+    </div>
+    <div class="photo-card" data-idx="237" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780105/DSC04599_xumni5.jpg" data-dsc="DSC04599" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780105/DSC04599_xumni5.jpg" loading="lazy" alt="DSC04599">
+        <span class="dsc">DSC04599</span>
+        <span class="index">#238</span>
+    </div>
+    <div class="photo-card" data-idx="238" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780105/DSC04600_wluujm.jpg" data-dsc="DSC04600" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780105/DSC04600_wluujm.jpg" loading="lazy" alt="DSC04600">
+        <span class="dsc">DSC04600</span>
+        <span class="index">#239</span>
+    </div>
+    <div class="photo-card" data-idx="239" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780105/DSC04601_vkd42b.jpg" data-dsc="DSC04601" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780105/DSC04601_vkd42b.jpg" loading="lazy" alt="DSC04601">
+        <span class="dsc">DSC04601</span>
+        <span class="index">#240</span>
+    </div>
+    <div class="photo-card" data-idx="240" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780105/DSC04602_konvlz.jpg" data-dsc="DSC04602" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780105/DSC04602_konvlz.jpg" loading="lazy" alt="DSC04602">
+        <span class="dsc">DSC04602</span>
+        <span class="index">#241</span>
+    </div>
+    <div class="photo-card" data-idx="241" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780105/DSC04604_pyoznl.jpg" data-dsc="DSC04604" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780105/DSC04604_pyoznl.jpg" loading="lazy" alt="DSC04604">
+        <span class="dsc">DSC04604</span>
+        <span class="index">#242</span>
+    </div>
+    <div class="photo-card" data-idx="242" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780106/DSC04605_vl6m3b.jpg" data-dsc="DSC04605" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780106/DSC04605_vl6m3b.jpg" loading="lazy" alt="DSC04605">
+        <span class="dsc">DSC04605</span>
+        <span class="index">#243</span>
+    </div>
+    <div class="photo-card" data-idx="243" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780106/DSC04606_mtg4n2.jpg" data-dsc="DSC04606" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780106/DSC04606_mtg4n2.jpg" loading="lazy" alt="DSC04606">
+        <span class="dsc">DSC04606</span>
+        <span class="index">#244</span>
+    </div>
+    <div class="photo-card" data-idx="244" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780106/DSC04607_d8w0oi.jpg" data-dsc="DSC04607" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780106/DSC04607_d8w0oi.jpg" loading="lazy" alt="DSC04607">
+        <span class="dsc">DSC04607</span>
+        <span class="index">#245</span>
+    </div>
+    <div class="photo-card" data-idx="245" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780106/DSC04608_lnlysh.jpg" data-dsc="DSC04608" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780106/DSC04608_lnlysh.jpg" loading="lazy" alt="DSC04608">
+        <span class="dsc">DSC04608</span>
+        <span class="index">#246</span>
+    </div>
+    <div class="photo-card" data-idx="246" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780106/DSC04609_npr2ne.jpg" data-dsc="DSC04609" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780106/DSC04609_npr2ne.jpg" loading="lazy" alt="DSC04609">
+        <span class="dsc">DSC04609</span>
+        <span class="index">#247</span>
+    </div>
+    <div class="photo-card" data-idx="247" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780107/DSC04611_kn3ttk.jpg" data-dsc="DSC04611" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780107/DSC04611_kn3ttk.jpg" loading="lazy" alt="DSC04611">
+        <span class="dsc">DSC04611</span>
+        <span class="index">#248</span>
+    </div>
+    <div class="photo-card" data-idx="248" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780107/DSC04617_nadkex.jpg" data-dsc="DSC04617" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780107/DSC04617_nadkex.jpg" loading="lazy" alt="DSC04617">
+        <span class="dsc">DSC04617</span>
+        <span class="index">#249</span>
+    </div>
+    <div class="photo-card" data-idx="249" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780107/DSC04618_bt67sc.jpg" data-dsc="DSC04618" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780107/DSC04618_bt67sc.jpg" loading="lazy" alt="DSC04618">
+        <span class="dsc">DSC04618</span>
+        <span class="index">#250</span>
+    </div>
+    <div class="photo-card" data-idx="250" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780107/DSC04620_qwpnjk.jpg" data-dsc="DSC04620" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780107/DSC04620_qwpnjk.jpg" loading="lazy" alt="DSC04620">
+        <span class="dsc">DSC04620</span>
+        <span class="index">#251</span>
+    </div>
+    <div class="photo-card" data-idx="251" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780107/DSC04624_lqsskv.jpg" data-dsc="DSC04624" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780107/DSC04624_lqsskv.jpg" loading="lazy" alt="DSC04624">
+        <span class="dsc">DSC04624</span>
+        <span class="index">#252</span>
+    </div>
+    <div class="photo-card" data-idx="252" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780107/DSC04626_k63vzw.jpg" data-dsc="DSC04626" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780107/DSC04626_k63vzw.jpg" loading="lazy" alt="DSC04626">
+        <span class="dsc">DSC04626</span>
+        <span class="index">#253</span>
+    </div>
+    <div class="photo-card" data-idx="253" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780123/DSC04627_deqa48.jpg" data-dsc="DSC04627" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780123/DSC04627_deqa48.jpg" loading="lazy" alt="DSC04627">
+        <span class="dsc">DSC04627</span>
+        <span class="index">#254</span>
+    </div>
+    <div class="photo-card" data-idx="254" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780125/DSC05044_w9xr61.jpg" data-dsc="DSC05044" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780125/DSC05044_w9xr61.jpg" loading="lazy" alt="DSC05044">
+        <span class="dsc">DSC05044</span>
+        <span class="index">#255</span>
+    </div>
+    <div class="photo-card" data-idx="255" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780123/DSC05045_fmulsa.jpg" data-dsc="DSC05045" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780123/DSC05045_fmulsa.jpg" loading="lazy" alt="DSC05045">
+        <span class="dsc">DSC05045</span>
+        <span class="index">#256</span>
+    </div>
+    <div class="photo-card" data-idx="256" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780123/DSC05046_srb223.jpg" data-dsc="DSC05046" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780123/DSC05046_srb223.jpg" loading="lazy" alt="DSC05046">
+        <span class="dsc">DSC05046</span>
+        <span class="index">#257</span>
+    </div>
+    <div class="photo-card" data-idx="257" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780123/DSC05047_nfjhca.jpg" data-dsc="DSC05047" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780123/DSC05047_nfjhca.jpg" loading="lazy" alt="DSC05047">
+        <span class="dsc">DSC05047</span>
+        <span class="index">#258</span>
+    </div>
+    <div class="photo-card" data-idx="258" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780124/DSC05048_ktozoa.jpg" data-dsc="DSC05048" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780124/DSC05048_ktozoa.jpg" loading="lazy" alt="DSC05048">
+        <span class="dsc">DSC05048</span>
+        <span class="index">#259</span>
+    </div>
+    <div class="photo-card" data-idx="259" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780124/DSC05050_ofogu4.jpg" data-dsc="DSC05050" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780124/DSC05050_ofogu4.jpg" loading="lazy" alt="DSC05050">
+        <span class="dsc">DSC05050</span>
+        <span class="index">#260</span>
+    </div>
+    <div class="photo-card" data-idx="260" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780125/DSC05063_gndyal.jpg" data-dsc="DSC05063" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780125/DSC05063_gndyal.jpg" loading="lazy" alt="DSC05063">
+        <span class="dsc">DSC05063</span>
+        <span class="index">#261</span>
+    </div>
+    <div class="photo-card" data-idx="261" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780125/DSC05064_awyira.jpg" data-dsc="DSC05064" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780125/DSC05064_awyira.jpg" loading="lazy" alt="DSC05064">
+        <span class="dsc">DSC05064</span>
+        <span class="index">#262</span>
+    </div>
+    <div class="photo-card" data-idx="262" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780125/DSC05065_fzburv.jpg" data-dsc="DSC05065" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780125/DSC05065_fzburv.jpg" loading="lazy" alt="DSC05065">
+        <span class="dsc">DSC05065</span>
+        <span class="index">#263</span>
+    </div>
+    <div class="photo-card" data-idx="263" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780125/DSC05066_b3i8zm.jpg" data-dsc="DSC05066" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780125/DSC05066_b3i8zm.jpg" loading="lazy" alt="DSC05066">
+        <span class="dsc">DSC05066</span>
+        <span class="index">#264</span>
+    </div>
+    <div class="photo-card" data-idx="264" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780126/DSC05082_cfqdq2.jpg" data-dsc="DSC05082" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780126/DSC05082_cfqdq2.jpg" loading="lazy" alt="DSC05082">
+        <span class="dsc">DSC05082</span>
+        <span class="index">#265</span>
+    </div>
+    <div class="photo-card" data-idx="265" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780126/DSC05083_ovzwmb.jpg" data-dsc="DSC05083" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780126/DSC05083_ovzwmb.jpg" loading="lazy" alt="DSC05083">
+        <span class="dsc">DSC05083</span>
+        <span class="index">#266</span>
+    </div>
+    <div class="photo-card" data-idx="266" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780129/DSC05084_jwymll.jpg" data-dsc="DSC05084" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780129/DSC05084_jwymll.jpg" loading="lazy" alt="DSC05084">
+        <span class="dsc">DSC05084</span>
+        <span class="index">#267</span>
+    </div>
+    <div class="photo-card" data-idx="267" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780126/DSC06992_brcqoz.jpg" data-dsc="DSC06992" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780126/DSC06992_brcqoz.jpg" loading="lazy" alt="DSC06992">
+        <span class="dsc">DSC06992</span>
+        <span class="index">#268</span>
+    </div>
+    <div class="photo-card" data-idx="268" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780127/DSC06993_udkgo0.jpg" data-dsc="DSC06993" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780127/DSC06993_udkgo0.jpg" loading="lazy" alt="DSC06993">
+        <span class="dsc">DSC06993</span>
+        <span class="index">#269</span>
+    </div>
+    <div class="photo-card" data-idx="269" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780127/DSC06995_oubfkl.jpg" data-dsc="DSC06995" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780127/DSC06995_oubfkl.jpg" loading="lazy" alt="DSC06995">
+        <span class="dsc">DSC06995</span>
+        <span class="index">#270</span>
+    </div>
+    <div class="photo-card" data-idx="270" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780128/DSC06997_aa5k7e.jpg" data-dsc="DSC06997" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780128/DSC06997_aa5k7e.jpg" loading="lazy" alt="DSC06997">
+        <span class="dsc">DSC06997</span>
+        <span class="index">#271</span>
+    </div>
+    <div class="photo-card" data-idx="271" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780127/DSC06998_eoqxix.jpg" data-dsc="DSC06998" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780127/DSC06998_eoqxix.jpg" loading="lazy" alt="DSC06998">
+        <span class="dsc">DSC06998</span>
+        <span class="index">#272</span>
+    </div>
+    <div class="photo-card" data-idx="272" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780128/DSC06999_r9lowx.jpg" data-dsc="DSC06999" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780128/DSC06999_r9lowx.jpg" loading="lazy" alt="DSC06999">
+        <span class="dsc">DSC06999</span>
+        <span class="index">#273</span>
+    </div>
+    <div class="photo-card" data-idx="273" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780168/DSC07001_d6gl1r.jpg" data-dsc="DSC07001" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780168/DSC07001_d6gl1r.jpg" loading="lazy" alt="DSC07001">
+        <span class="dsc">DSC07001</span>
+        <span class="index">#274</span>
+    </div>
+    <div class="photo-card" data-idx="274" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780158/DSC07003_kdnqd6.jpg" data-dsc="DSC07003" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780158/DSC07003_kdnqd6.jpg" loading="lazy" alt="DSC07003">
+        <span class="dsc">DSC07003</span>
+        <span class="index">#275</span>
+    </div>
+    <div class="photo-card" data-idx="275" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780158/DSC07004_b9wjwu.jpg" data-dsc="DSC07004" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780158/DSC07004_b9wjwu.jpg" loading="lazy" alt="DSC07004">
+        <span class="dsc">DSC07004</span>
+        <span class="index">#276</span>
+    </div>
+    <div class="photo-card" data-idx="276" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780161/DSC07006_a07vxd.jpg" data-dsc="DSC07006" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780161/DSC07006_a07vxd.jpg" loading="lazy" alt="DSC07006">
+        <span class="dsc">DSC07006</span>
+        <span class="index">#277</span>
+    </div>
+    <div class="photo-card" data-idx="277" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780158/DSC07007_ev2znz.jpg" data-dsc="DSC07007" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780158/DSC07007_ev2znz.jpg" loading="lazy" alt="DSC07007">
+        <span class="dsc">DSC07007</span>
+        <span class="index">#278</span>
+    </div>
+    <div class="photo-card" data-idx="278" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780158/DSC07009_jn2bss.jpg" data-dsc="DSC07009" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780158/DSC07009_jn2bss.jpg" loading="lazy" alt="DSC07009">
+        <span class="dsc">DSC07009</span>
+        <span class="index">#279</span>
+    </div>
+    <div class="photo-card" data-idx="279" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780159/DSC07011_lhcvof.jpg" data-dsc="DSC07011" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780159/DSC07011_lhcvof.jpg" loading="lazy" alt="DSC07011">
+        <span class="dsc">DSC07011</span>
+        <span class="index">#280</span>
+    </div>
+    <div class="photo-card" data-idx="280" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780159/DSC07012_ddk0pr.jpg" data-dsc="DSC07012" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780159/DSC07012_ddk0pr.jpg" loading="lazy" alt="DSC07012">
+        <span class="dsc">DSC07012</span>
+        <span class="index">#281</span>
+    </div>
+    <div class="photo-card" data-idx="281" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780192/DSC07013_prcing.jpg" data-dsc="DSC07013" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780192/DSC07013_prcing.jpg" loading="lazy" alt="DSC07013">
+        <span class="dsc">DSC07013</span>
+        <span class="index">#282</span>
+    </div>
+    <div class="photo-card" data-idx="282" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780184/DSC07015_lfmxee.jpg" data-dsc="DSC07015" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780184/DSC07015_lfmxee.jpg" loading="lazy" alt="DSC07015">
+        <span class="dsc">DSC07015</span>
+        <span class="index">#283</span>
+    </div>
+    <div class="photo-card" data-idx="283" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780179/DSC07016_jtruh6.jpg" data-dsc="DSC07016" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780179/DSC07016_jtruh6.jpg" loading="lazy" alt="DSC07016">
+        <span class="dsc">DSC07016</span>
+        <span class="index">#284</span>
+    </div>
+    <div class="photo-card" data-idx="284" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780179/DSC07017_nwvvhx.jpg" data-dsc="DSC07017" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780179/DSC07017_nwvvhx.jpg" loading="lazy" alt="DSC07017">
+        <span class="dsc">DSC07017</span>
+        <span class="index">#285</span>
+    </div>
+    <div class="photo-card" data-idx="285" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780179/DSC07019_qabwgm.jpg" data-dsc="DSC07019" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780179/DSC07019_qabwgm.jpg" loading="lazy" alt="DSC07019">
+        <span class="dsc">DSC07019</span>
+        <span class="index">#286</span>
+    </div>
+    <div class="photo-card" data-idx="286" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780181/DSC07020_cjpzxa.jpg" data-dsc="DSC07020" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780181/DSC07020_cjpzxa.jpg" loading="lazy" alt="DSC07020">
+        <span class="dsc">DSC07020</span>
+        <span class="index">#287</span>
+    </div>
+    <div class="photo-card" data-idx="287" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780181/DSC07022_j1x3nl.jpg" data-dsc="DSC07022" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780181/DSC07022_j1x3nl.jpg" loading="lazy" alt="DSC07022">
+        <span class="dsc">DSC07022</span>
+        <span class="index">#288</span>
+    </div>
+    <div class="photo-card" data-idx="288" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780180/DSC07032_mnn6ix.jpg" data-dsc="DSC07032" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780180/DSC07032_mnn6ix.jpg" loading="lazy" alt="DSC07032">
+        <span class="dsc">DSC07032</span>
+        <span class="index">#289</span>
+    </div>
+    <div class="photo-card" data-idx="289" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780181/DSC07034_hwoil6.jpg" data-dsc="DSC07034" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780181/DSC07034_hwoil6.jpg" loading="lazy" alt="DSC07034">
+        <span class="dsc">DSC07034</span>
+        <span class="index">#290</span>
+    </div>
+    <div class="photo-card" data-idx="290" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780181/DSC07560_xbwicn.jpg" data-dsc="DSC07560" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780181/DSC07560_xbwicn.jpg" loading="lazy" alt="DSC07560">
+        <span class="dsc">DSC07560</span>
+        <span class="index">#291</span>
+    </div>
+    <div class="photo-card" data-idx="291" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780182/DSC07561_ntmtjc.jpg" data-dsc="DSC07561" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780182/DSC07561_ntmtjc.jpg" loading="lazy" alt="DSC07561">
+        <span class="dsc">DSC07561</span>
+        <span class="index">#292</span>
+    </div>
+    <div class="photo-card" data-idx="292" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780183/DSC07563_dvnbxa.jpg" data-dsc="DSC07563" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780183/DSC07563_dvnbxa.jpg" loading="lazy" alt="DSC07563">
+        <span class="dsc">DSC07563</span>
+        <span class="index">#293</span>
+    </div>
+    <div class="photo-card" data-idx="293" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780183/DSC07609_nf3azt.jpg" data-dsc="DSC07609" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780183/DSC07609_nf3azt.jpg" loading="lazy" alt="DSC07609">
+        <span class="dsc">DSC07609</span>
+        <span class="index">#294</span>
+    </div>
+    <div class="photo-card" data-idx="294" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780207/DSC07610_mm0yxr.jpg" data-dsc="DSC07610" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780207/DSC07610_mm0yxr.jpg" loading="lazy" alt="DSC07610">
+        <span class="dsc">DSC07610</span>
+        <span class="index">#295</span>
+    </div>
+    <div class="photo-card" data-idx="295" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780198/DSC07611_hfisf6.jpg" data-dsc="DSC07611" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780198/DSC07611_hfisf6.jpg" loading="lazy" alt="DSC07611">
+        <span class="dsc">DSC07611</span>
+        <span class="index">#296</span>
+    </div>
+    <div class="photo-card" data-idx="296" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780195/DSC07612_dywvae.jpg" data-dsc="DSC07612" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780195/DSC07612_dywvae.jpg" loading="lazy" alt="DSC07612">
+        <span class="dsc">DSC07612</span>
+        <span class="index">#297</span>
+    </div>
+    <div class="photo-card" data-idx="297" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780196/DSC07613_rbj9l6.jpg" data-dsc="DSC07613" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780196/DSC07613_rbj9l6.jpg" loading="lazy" alt="DSC07613">
+        <span class="dsc">DSC07613</span>
+        <span class="index">#298</span>
+    </div>
+    <div class="photo-card" data-idx="298" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780196/DSC07614_vlbkik.jpg" data-dsc="DSC07614" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780196/DSC07614_vlbkik.jpg" loading="lazy" alt="DSC07614">
+        <span class="dsc">DSC07614</span>
+        <span class="index">#299</span>
+    </div>
+    <div class="photo-card" data-idx="299" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780197/DSC07616_fzefyc.jpg" data-dsc="DSC07616" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780197/DSC07616_fzefyc.jpg" loading="lazy" alt="DSC07616">
+        <span class="dsc">DSC07616</span>
+        <span class="index">#300</span>
+    </div>
+    <div class="photo-card" data-idx="300" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780196/DSC09093_plxdyx.jpg" data-dsc="DSC09093" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780196/DSC09093_plxdyx.jpg" loading="lazy" alt="DSC09093">
+        <span class="dsc">DSC09093</span>
+        <span class="index">#301</span>
+    </div>
+    <div class="photo-card" data-idx="301" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780197/DSC09094_qwgwr1.jpg" data-dsc="DSC09094" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780197/DSC09094_qwgwr1.jpg" loading="lazy" alt="DSC09094">
+        <span class="dsc">DSC09094</span>
+        <span class="index">#302</span>
+    </div>
+    <div class="photo-card" data-idx="302" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780197/DSC09098_urqzg2.jpg" data-dsc="DSC09098" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780197/DSC09098_urqzg2.jpg" loading="lazy" alt="DSC09098">
+        <span class="dsc">DSC09098</span>
+        <span class="index">#303</span>
+    </div>
+    <div class="photo-card" data-idx="303" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780198/DSC09099_gocmka.jpg" data-dsc="DSC09099" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780198/DSC09099_gocmka.jpg" loading="lazy" alt="DSC09099">
+        <span class="dsc">DSC09099</span>
+        <span class="index">#304</span>
+    </div>
+    <div class="photo-card" data-idx="304" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780198/DSC09101_p4jnol.jpg" data-dsc="DSC09101" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780198/DSC09101_p4jnol.jpg" loading="lazy" alt="DSC09101">
+        <span class="dsc">DSC09101</span>
+        <span class="index">#305</span>
+    </div>
+    <div class="photo-card" data-idx="305" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780198/DSC09102_vpauyy.jpg" data-dsc="DSC09102" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780198/DSC09102_vpauyy.jpg" loading="lazy" alt="DSC09102">
+        <span class="dsc">DSC09102</span>
+        <span class="index">#306</span>
+    </div>
+    <div class="photo-card" data-idx="306" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780227/DSC09105_qi2rxi.jpg" data-dsc="DSC09105" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780227/DSC09105_qi2rxi.jpg" loading="lazy" alt="DSC09105">
+        <span class="dsc">DSC09105</span>
+        <span class="index">#307</span>
+    </div>
+    <div class="photo-card" data-idx="307" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780254/DSC09106_idozcy.jpg" data-dsc="DSC09106" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780254/DSC09106_idozcy.jpg" loading="lazy" alt="DSC09106">
+        <span class="dsc">DSC09106</span>
+        <span class="index">#308</span>
+    </div>
+    <div class="photo-card" data-idx="308" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780268/DSC09108_cyu2qb.jpg" data-dsc="DSC09108" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780268/DSC09108_cyu2qb.jpg" loading="lazy" alt="DSC09108">
+        <span class="dsc">DSC09108</span>
+        <span class="index">#309</span>
+    </div>
+    <div class="photo-card" data-idx="309" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780265/DSC09116_ewoepz.jpg" data-dsc="DSC09116" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780265/DSC09116_ewoepz.jpg" loading="lazy" alt="DSC09116">
+        <span class="dsc">DSC09116</span>
+        <span class="index">#310</span>
+    </div>
+    <div class="photo-card" data-idx="310" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770780267/DSC09117_hk0moh.jpg" data-dsc="DSC09117" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770780267/DSC09117_hk0moh.jpg" loading="lazy" alt="DSC09117">
+        <span class="dsc">DSC09117</span>
+        <span class="index">#311</span>
+    </div>
+    <div class="photo-card" data-idx="311" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779793/_DSC1708_zwsh4m.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779793/_DSC1708_zwsh4m.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#312</span>
+    </div>
+    <div class="photo-card" data-idx="312" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779793/_DSC1711_vyqq5y.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779793/_DSC1711_vyqq5y.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#313</span>
+    </div>
+    <div class="photo-card" data-idx="313" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779793/_DSC1713_zcveif.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779793/_DSC1713_zcveif.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#314</span>
+    </div>
+    <div class="photo-card" data-idx="314" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779794/_DSC1715_nxh79d.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779794/_DSC1715_nxh79d.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#315</span>
+    </div>
+    <div class="photo-card" data-idx="315" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779794/_DSC1718_en9xng.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779794/_DSC1718_en9xng.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#316</span>
+    </div>
+    <div class="photo-card" data-idx="316" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779797/_DSC1719_swfwht.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779797/_DSC1719_swfwht.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#317</span>
+    </div>
+    <div class="photo-card" data-idx="317" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779795/_DSC1720_eqknd4.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779795/_DSC1720_eqknd4.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#318</span>
+    </div>
+    <div class="photo-card" data-idx="318" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779795/_DSC1722_bzpwv8.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779795/_DSC1722_bzpwv8.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#319</span>
+    </div>
+    <div class="photo-card" data-idx="319" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779795/_DSC1723_btothk.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779795/_DSC1723_btothk.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#320</span>
+    </div>
+    <div class="photo-card" data-idx="320" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779796/_DSC1725_ygszgt.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779796/_DSC1725_ygszgt.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#321</span>
+    </div>
+    <div class="photo-card" data-idx="321" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779793/_DSC1728_t6s9pf.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779793/_DSC1728_t6s9pf.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#322</span>
+    </div>
+    <div class="photo-card" data-idx="322" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779793/_DSC1729_clvkpv.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779793/_DSC1729_clvkpv.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#323</span>
+    </div>
+    <div class="photo-card" data-idx="323" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779793/_DSC1730_xtdmsw.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779793/_DSC1730_xtdmsw.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#324</span>
+    </div>
+    <div class="photo-card" data-idx="324" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779795/_DSC1731_krhc0u.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779795/_DSC1731_krhc0u.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#325</span>
+    </div>
+    <div class="photo-card" data-idx="325" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779796/_DSC1732_d2rfhz.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779796/_DSC1732_d2rfhz.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#326</span>
+    </div>
+    <div class="photo-card" data-idx="326" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779796/_DSC1737_kylmuj.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779796/_DSC1737_kylmuj.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#327</span>
+    </div>
+    <div class="photo-card" data-idx="327" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779796/_DSC1741_retcxn.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779796/_DSC1741_retcxn.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#328</span>
+    </div>
+    <div class="photo-card" data-idx="328" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779797/_DSC1742_hymbiz.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779797/_DSC1742_hymbiz.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#329</span>
+    </div>
+    <div class="photo-card" data-idx="329" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779797/_DSC1743_onlk6a.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779797/_DSC1743_onlk6a.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#330</span>
+    </div>
+    <div class="photo-card" data-idx="330" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779797/_DSC1744_nrixoh.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779797/_DSC1744_nrixoh.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#331</span>
+    </div>
+    <div class="photo-card" data-idx="331" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779797/_DSC1747_apibej.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779797/_DSC1747_apibej.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#332</span>
+    </div>
+    <div class="photo-card" data-idx="332" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779798/_DSC1749_qaujwy.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779798/_DSC1749_qaujwy.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#333</span>
+    </div>
+    <div class="photo-card" data-idx="333" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779798/_DSC1750_efjtc1.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779798/_DSC1750_efjtc1.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#334</span>
+    </div>
+    <div class="photo-card" data-idx="334" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779798/_DSC1751_srjcfz.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779798/_DSC1751_srjcfz.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#335</span>
+    </div>
+    <div class="photo-card" data-idx="335" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779798/_DSC1752_zb0uxg.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779798/_DSC1752_zb0uxg.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#336</span>
+    </div>
+    <div class="photo-card" data-idx="336" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779798/_DSC1753_hafyxw.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779798/_DSC1753_hafyxw.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#337</span>
+    </div>
+    <div class="photo-card" data-idx="337" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779798/_DSC1755_fv6nau.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779798/_DSC1755_fv6nau.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#338</span>
+    </div>
+    <div class="photo-card" data-idx="338" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779799/_DSC1757_oyiuhb.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779799/_DSC1757_oyiuhb.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#339</span>
+    </div>
+    <div class="photo-card" data-idx="339" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779799/_DSC1760_cktbi1.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779799/_DSC1760_cktbi1.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#340</span>
+    </div>
+    <div class="photo-card" data-idx="340" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779799/_DSC1762_kaodgm.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779799/_DSC1762_kaodgm.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#341</span>
+    </div>
+    <div class="photo-card" data-idx="341" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779799/_DSC1763_f7ngeg.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779799/_DSC1763_f7ngeg.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#342</span>
+    </div>
+    <div class="photo-card" data-idx="342" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779799/_DSC1764_rjilff.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779799/_DSC1764_rjilff.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#343</span>
+    </div>
+    <div class="photo-card" data-idx="343" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779799/_DSC1766_ampjkk.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779799/_DSC1766_ampjkk.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#344</span>
+    </div>
+    <div class="photo-card" data-idx="344" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779799/_DSC1767_jsjmsw.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779799/_DSC1767_jsjmsw.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#345</span>
+    </div>
+    <div class="photo-card" data-idx="345" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779800/_DSC1769_deg6wi.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779800/_DSC1769_deg6wi.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#346</span>
+    </div>
+    <div class="photo-card" data-idx="346" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779800/_DSC1770_wyfzlz.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779800/_DSC1770_wyfzlz.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#347</span>
+    </div>
+    <div class="photo-card" data-idx="347" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779800/_DSC1771_kqgxrc.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779800/_DSC1771_kqgxrc.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#348</span>
+    </div>
+    <div class="photo-card" data-idx="348" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779801/_DSC1772_avmwxu.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779801/_DSC1772_avmwxu.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#349</span>
+    </div>
+    <div class="photo-card" data-idx="349" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779801/_DSC1775_kwppyd.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779801/_DSC1775_kwppyd.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#350</span>
+    </div>
+    <div class="photo-card" data-idx="350" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779801/_DSC1778_ioqdrg.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779801/_DSC1778_ioqdrg.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#351</span>
+    </div>
+    <div class="photo-card" data-idx="351" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779801/_DSC1779_zg165n.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779801/_DSC1779_zg165n.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#352</span>
+    </div>
+    <div class="photo-card" data-idx="352" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1781_ejjknw.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779802/_DSC1781_ejjknw.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#353</span>
+    </div>
+    <div class="photo-card" data-idx="353" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1783_nrh9fy.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779802/_DSC1783_nrh9fy.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#354</span>
+    </div>
+    <div class="photo-card" data-idx="354" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1784_ghpelq.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779802/_DSC1784_ghpelq.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#355</span>
+    </div>
+    <div class="photo-card" data-idx="355" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779803/_DSC1787_a8ahgl.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779803/_DSC1787_a8ahgl.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#356</span>
+    </div>
+    <div class="photo-card" data-idx="356" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1788_apkcas.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779802/_DSC1788_apkcas.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#357</span>
+    </div>
+    <div class="photo-card" data-idx="357" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1790_j861sx.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779802/_DSC1790_j861sx.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#358</span>
+    </div>
+    <div class="photo-card" data-idx="358" data-url="https://res.cloudinary.com/deldcwiji/image/upload/v1770779803/_DSC1791_uezph2.jpg" data-dsc="" onclick="toggleSelect(this)">
+        <img src="https://res.cloudinary.com/deldcwiji/image/upload/f_auto,q_auto,w_200,h_267,c_fill,g_face/v1770779803/_DSC1791_uezph2.jpg" loading="lazy" alt="">
+        <span class="dsc"></span>
+        <span class="index">#359</span>
+    </div>
+</div>
+
+<pre id="exportOutput"></pre>
+
+<script>
+const employees = {"emp-001": "Abdullah", "emp-002": "Abu Bakar Ali", "emp-003": "Adibah Hana Widjaya", "emp-004": "Adiya Herisa", "emp-005": "Afiyanti Hardiansari", "emp-006": "Ahmad Haikal", "emp-007": "Alifananda Dhaffa Hanif Musyafa", "emp-008": "Almia Ester Kristiyany Sinabang", "emp-009": "Andrean Hadinata", "emp-010": "Anggie Ayu Setya Pradini", "emp-011": "Annisa Fitri Tanjung", "emp-012": "Ardiansyah", "emp-013": "Ari Wibowo", "emp-014": "Aria Wisnuwardana", "emp-015": "Auliya Hasanatin Suwisto", "emp-016": "Ayunda Primaputri", "emp-017": "Azalia Magdalena Septianti Tambunan", "emp-018": "Bela Kartika Sari", "emp-019": "Berliana Gustina Siregar", "emp-020": "Chantika Nur Febryanti", "emp-021": "Danu Irwansyah", "emp-022": "Denis Septian", "emp-023": "Derry Parmanto", "emp-024": "Devi Agriani", "emp-025": "Devi Larasati", "emp-026": "Dien Islamy", "emp-027": "Dina", "emp-028": "Dini Meilani Pramesti", "emp-029": "Diya Pratiwi", "emp-030": "Dona", "emp-031": "Fadholi Akbar", "emp-032": "Faisal Nur Hidayat", "emp-033": "Faqiha Salma Achmada", "emp-034": "Farhah Alya Nabilah", "emp-035": "Fayza Julia Pramesti Hapsari Prayoga", "emp-036": "Ferlyna Balqis", "emp-037": "Fransiska Evasari", "emp-038": "Galen Rasendriya", "emp-039": "Gebby Rika Amdani", "emp-040": "Gundah Basiswi", "emp-041": "Hadi", "emp-042": "Hana Nuzula Fajria", "emp-043": "Himawan Rizky Syaputra", "emp-044": "Ian Ahmad Fauzi", "emp-045": "Iis Asifah", "emp-046": "Ika Rahayu", "emp-047": "Irawan", "emp-048": "Khairul Anwar", "emp-049": "Kholida Widyawati", "emp-050": "Krisalyssa Esna Rehulina Tarigan", "emp-051": "Kurnia Sandi", "emp-052": "Latifah Nur Restiningtyas", "emp-053": "Mahrukh Bashir", "emp-054": "Maria Rosa Apriliana Jaftoran", "emp-055": "Maulida Yunita", "emp-056": "Muhammad Farhan Sholeh Ramadhika", "emp-057": "Muhammad Fathan Qorib", "emp-058": "Muhammad Gibran Al Wali", "emp-059": "Muhammad Rayhan Ananta", "emp-060": "Mukron", "emp-061": "Nadia", "emp-062": "Najmi Silmi Mafaza", "emp-063": "Nanda Citra Ryani", "emp-064": "Nathasya Christine Prabowo", "emp-065": "Nayandra Hasan Sudra", "emp-066": "Nazmi Kusumawantari", "emp-067": "Ni Made Ayu Juwitasari", "emp-068": "Novan Syaiful Rahman", "emp-069": "Novia Syifaputri Ramadhan", "emp-070": "Nur Muhamad Ismail", "emp-071": "Nurul Widyaningtyas Agustin", "emp-072": "Pipiet Anggreiny", "emp-073": "Pricilla Cecil Leander", "emp-074": "Prisy Dewanti", "emp-075": "Putri Fitriyani", "emp-076": "Raditya Saputra", "emp-077": "Raisa Ramadhani", "emp-078": "Ratna Merlangen", "emp-079": "Restia Widiasari", "emp-080": "Reza Rizky Prayudha", "emp-081": "Rifqi Satria Permana", "emp-082": "Rike Rahmawati", "emp-083": "Risma Ayu Angelita", "emp-084": "Risma Galuh Pitaloka Fahdin", "emp-085": "Rizki Amalia Fatikhah", "emp-086": "Rizki Nurul Hayati", "emp-087": "Robby Anggara", "emp-088": "Robby Noer Abjuny", "emp-089": "Robiatul Adawiah", "emp-090": "Rohmatulloh", "emp-091": "Romasta Oryza Sativa Siagian", "emp-092": "Salsabila Dhiyaussyifa Laela", "emp-093": "Sarah Yuliana", "emp-094": "Sayed Jilliyan", "emp-095": "Shahrani Fatimah Azzahrah", "emp-096": "Susantika Nilasari", "emp-097": "Tiastiningrum Nugrahanti", "emp-098": "Tien Hadiningsih", "emp-099": "Tri Ayu Lestari", "emp-100": "Tria Fadilla", "emp-101": "Udom Anatapong", "emp-102": "Usep Saefurohman", "emp-103": "Vicki Aprinando", "emp-104": "Vinka Erawati", "emp-105": "Wahyu Ramadhan", "emp-106": "Yeti", "emp-107": "Yohana Setia Risli", "emp-108": "Yosafat Imanuel Parlindungan", "emp-109": "Zavier Cloudya Mashareen", "emp-110": "Zolla Firmalia Rossa"};
+const assignments = {}; // empId -> [urls]
+const photoAssignments = {}; // photoIdx -> empId
+let lastAction = null;
+
+function toggleSelect(el) {
+    if (el.classList.contains('assigned')) return;
+    el.classList.toggle('selected');
+    updateStats();
+}
+
+function assignSelected() {
+    const empId = document.getElementById('empSelect').value;
+    if (!empId) { alert('Pilih karyawan dulu!'); return; }
+    
+    const selected = document.querySelectorAll('.photo-card.selected');
+    if (selected.length === 0) { alert('Pilih foto dulu!'); return; }
+    
+    if (!assignments[empId]) assignments[empId] = [];
+    
+    const undoData = { empId, indices: [] };
+    
+    selected.forEach(el => {
+        const idx = parseInt(el.dataset.idx);
+        const url = el.dataset.url;
+        assignments[empId].push(url);
+        photoAssignments[idx] = empId;
+        el.classList.remove('selected');
+        el.classList.add('assigned');
+        
+        let nameTag = el.querySelector('.emp-name');
+        if (!nameTag) {
+            nameTag = document.createElement('div');
+            nameTag.className = 'emp-name';
+            el.appendChild(nameTag);
+        }
+        nameTag.textContent = employees[empId];
+        undoData.indices.push(idx);
+    });
+    
+    lastAction = undoData;
+    updateStats();
+}
+
+function undoLast() {
+    if (!lastAction) return;
+    const { empId, indices } = lastAction;
+    
+    indices.forEach(idx => {
+        const el = document.querySelector(`.photo-card[data-idx="${idx}"]`);
+        el.classList.remove('assigned');
+        const nameTag = el.querySelector('.emp-name');
+        if (nameTag) nameTag.remove();
+        delete photoAssignments[idx];
+        
+        // Remove from assignments
+        const url = el.dataset.url;
+        const arrIdx = assignments[empId].indexOf(url);
+        if (arrIdx > -1) assignments[empId].splice(arrIdx, 1);
+        if (assignments[empId].length === 0) delete assignments[empId];
+    });
+    
+    lastAction = null;
+    updateStats();
+}
+
+function clearSelection() {
+    document.querySelectorAll('.photo-card.selected').forEach(el => el.classList.remove('selected'));
+    updateStats();
+}
+
+function updateStats() {
+    const selected = document.querySelectorAll('.photo-card.selected').length;
+    const assigned = document.querySelectorAll('.photo-card.assigned').length;
+    document.getElementById('statsText').textContent = `Selected: ${selected} | Assigned: ${assigned}/359`;
+}
+
+function exportJSON() {
+    const output = {};
+    for (const [empId, urls] of Object.entries(assignments)) {
+        output[empId] = {
+            name: employees[empId],
+            photos: urls
+        };
+    }
+    
+    const el = document.getElementById('exportOutput');
+    el.style.display = 'block';
+    el.textContent = JSON.stringify(output, null, 2);
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(JSON.stringify(output, null, 2)).then(() => {
+        alert('JSON copied to clipboard! Paste ke chat untuk saya proses.');
+    });
+}
+</script>
+</body>
+</html>

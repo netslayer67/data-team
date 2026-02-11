@@ -211,7 +211,7 @@
         height: clamp(240px, 32vw, 460px);
         left: 4%;
         top: 12%;
-        background: radial-gradient(circle at 30% 35%, rgba(255,255,255,0.42), rgba(56,189,248,0.34) 42%, rgba(14,116,144,0.08) 72%);
+        background: radial-gradient(circle at 30% 35%, rgba(255, 255, 255, 0.42), rgba(56, 189, 248, 0.34) 42%, rgba(14, 116, 144, 0.08) 72%);
         animation-duration: 42s;
     }
 
@@ -220,7 +220,7 @@
         height: clamp(280px, 36vw, 500px);
         right: 6%;
         top: 14%;
-        background: radial-gradient(circle at 62% 34%, rgba(255,255,255,0.34), rgba(34,211,238,0.3) 42%, rgba(12,108,166,0.1) 72%);
+        background: radial-gradient(circle at 62% 34%, rgba(255, 255, 255, 0.34), rgba(34, 211, 238, 0.3) 42%, rgba(12, 108, 166, 0.1) 72%);
         animation-duration: 48s;
         animation-delay: -14s;
     }
@@ -230,7 +230,7 @@
         height: clamp(300px, 40vw, 560px);
         left: 30%;
         bottom: -8%;
-        background: radial-gradient(circle at 45% 30%, rgba(255,255,255,0.3), rgba(125,211,252,0.3) 42%, rgba(14,116,144,0.08) 74%);
+        background: radial-gradient(circle at 45% 30%, rgba(255, 255, 255, 0.3), rgba(125, 211, 252, 0.3) 42%, rgba(14, 116, 144, 0.08) 74%);
         animation-duration: 50s;
         animation-delay: -22s;
     }
@@ -562,8 +562,40 @@
         contain: layout style paint;
     }
 
+    .aos-card {
+        will-change: transform, opacity;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+
+    [data-aos] {
+        will-change: transform, opacity;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+
+    [data-aos^='fade'][data-aos^='fade'] {
+        transform: translate3d(0, 32px, 0);
+    }
+
+    [data-aos='fade-left'] {
+        transform: translate3d(36px, 0, 0);
+    }
+
+    [data-aos='fade-right'] {
+        transform: translate3d(-36px, 0, 0);
+    }
+
+    [data-aos='zoom-in'] {
+        transform: scale(0.94);
+    }
+
     .route-transition-layer {
-        will-change: transform, opacity, filter;
+        will-change: transform, opacity;
+    }
+
+    .aos-animate {
+        will-change: auto;
     }
 }
 
@@ -640,25 +672,31 @@
     0% {
         transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
     }
+
     25% {
         transform: translate3d(4%, -3%, 0) scale(1.12) rotate(8deg);
     }
+
     50% {
         transform: translate3d(-3%, 3%, 0) scale(0.94) rotate(-7deg);
     }
+
     75% {
         transform: translate3d(3%, 2%, 0) scale(1.06) rotate(6deg);
     }
+
     100% {
         transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
     }
 }
 
 @keyframes lavaPulse {
+
     0%,
     100% {
         opacity: 0.6;
     }
+
     50% {
         opacity: 0.9;
     }
@@ -691,42 +729,140 @@
     .orb-a,
     .orb-b,
     .orb-c {
-        filter: blur(12px);
-        opacity: 0.48;
+        filter: blur(8px);
+        opacity: 0.3;
+    }
+
+    .orb-c {
+        display: none;
     }
 
     .lava-field {
-        filter: blur(12px) saturate(108%);
-        opacity: 0.34;
+        filter: blur(8px) saturate(100%);
+        opacity: 0.2;
+    }
+
+    .lava-blob-c {
+        display: none;
     }
 
     .app-background::before,
     .app-background::after {
-        opacity: 0.32;
+        opacity: 0.2;
     }
 
     .app-background {
-        animation-duration: 48s;
+        animation-duration: 60s;
     }
 
     .app-background::before {
-        filter: blur(36px) saturate(108%);
-        animation-duration: 46s;
+        filter: blur(28px) saturate(100%);
+        animation-duration: 60s;
     }
 
     .app-background::after {
-        filter: blur(28px);
-        animation-duration: 28s;
+        filter: blur(20px);
+        animation-duration: 40s;
+    }
+
+    .glass-surface {
+        backdrop-filter: blur(12px) saturate(120%);
+        -webkit-backdrop-filter: blur(12px) saturate(120%);
     }
 
     .ios-sidebar-shell {
-        backdrop-filter: blur(28px) saturate(185%) brightness(1.06);
-        -webkit-backdrop-filter: blur(28px) saturate(185%) brightness(1.06);
+        backdrop-filter: blur(20px) saturate(160%) brightness(1.04);
+        -webkit-backdrop-filter: blur(20px) saturate(160%) brightness(1.04);
     }
 
     .ios-sidebar-nav-link {
         padding: 0.68rem 0.82rem;
+        backdrop-filter: blur(14px) saturate(140%);
+        -webkit-backdrop-filter: blur(14px) saturate(140%);
     }
+
+    .ios-sidebar-focus {
+        backdrop-filter: blur(16px) saturate(140%);
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+    }
+}
+
+/* Low-end device optimizations (toggled via JS in main.jsx) */
+.reduced-effects .orb,
+.reduced-effects .lava-blob {
+    animation: none !important;
+    opacity: 0.15;
+}
+
+.reduced-effects .orb-b,
+.reduced-effects .orb-c,
+.reduced-effects .lava-blob-b,
+.reduced-effects .lava-blob-c {
+    display: none;
+}
+
+.reduced-effects .lava-field {
+    filter: blur(6px);
+    opacity: 0.1;
+}
+
+.reduced-effects .lava-field::before {
+    display: none;
+}
+
+.reduced-effects .app-background {
+    animation: none;
+}
+
+.reduced-effects .app-background::before,
+.reduced-effects .app-background::after {
+    animation: none;
+    opacity: 0.15;
+    filter: blur(16px);
+}
+
+.reduced-effects .glass-surface {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.reduced-effects .glass-surface::before,
+.reduced-effects .glass-surface::after {
+    display: none;
+}
+
+.reduced-effects .ios-sidebar-shell {
+    backdrop-filter: blur(12px) saturate(130%);
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
+}
+
+.reduced-effects .ios-sidebar-shell::before {
+    animation: none;
+}
+
+.reduced-effects .ios-sidebar-nav-link {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.reduced-effects .ios-sidebar-focus {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.reduced-effects .render-optimized {
+    content-visibility: visible;
+    contain-intrinsic-size: auto;
+}
+
+.reduced-effects [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+.reduced-effects .three-backdrop-container {
+    display: none;
 }
 
 @media (hover: none) and (pointer: coarse) {
@@ -806,8 +942,34 @@
         contain-intrinsic-size: auto;
     }
 
+    [data-aos] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
     .ios-sidebar-shell::before,
     .ios-sidebar-nav-link.active::before {
         animation: none;
     }
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 0px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
