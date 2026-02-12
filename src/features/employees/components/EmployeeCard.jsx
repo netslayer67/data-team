@@ -22,10 +22,24 @@ const roleGradient = {
     Others: 'from-slate-500/80 via-slate-400/70 to-cyan-500/60'
 };
 
-const getAvatarUrl = (employee) => {
+const getGeneratedAvatarUrl = (employee) => {
     const name = encodeURIComponent(employee.fullName || 'Employee');
     const bg = (employee.avatarColor || '#0ea5e9').replace('#', '');
     return `https://ui-avatars.com/api/?name=${name}&background=${bg}&color=fff&rounded=true&bold=true&size=160`;
+};
+
+const getAvatarSources = (employee) => {
+    const fallback = getGeneratedAvatarUrl(employee);
+    const unique = [];
+
+    [employee?.photoUrl, ...(Array.isArray(employee?.photos) ? employee.photos : [])]
+        .filter(Boolean)
+        .forEach((url) => {
+            if (!unique.includes(url)) unique.push(url);
+        });
+
+    unique.push(fallback);
+    return unique;
 };
 
 const isTeachingRole = (employee) => ['Teacher', 'SE Teacher'].includes(employee?.roleGroup);
@@ -49,12 +63,28 @@ const getSecondaryBadgeText = (employee) => {
 const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
     const [isHovered, setIsHovered] = React.useState(false);
     const [imgError, setImgError] = React.useState(false);
+    const [avatarIndex, setAvatarIndex] = React.useState(0);
     const accent = roleGradient[employee.roleGroup] || roleGradient.Others;
+    const avatarSources = React.useMemo(() => getAvatarSources(employee), [employee]);
+    const activeAvatar = avatarSources[Math.min(avatarIndex, avatarSources.length - 1)];
     const initials = employee.fullName
         .split(' ')
         .slice(0, 2)
         .map((word) => word.charAt(0).toUpperCase())
         .join('');
+
+    React.useEffect(() => {
+        setImgError(false);
+        setAvatarIndex(0);
+    }, [employee?._id]);
+
+    const handleAvatarError = () => {
+        if (avatarIndex < avatarSources.length - 1) {
+            setAvatarIndex((prev) => prev + 1);
+            return;
+        }
+        setImgError(true);
+    };
 
     if (compact) {
         return (
@@ -73,11 +103,11 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
                         <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/60 bg-white/70">
                             {!imgError ? (
                                 <img
-                                    src={getAvatarUrl(employee)}
+                                    src={activeAvatar}
                                     alt={employee.fullName}
                                     className="h-full w-full object-cover"
                                     loading="lazy"
-                                    onError={() => setImgError(true)}
+                                    onError={handleAvatarError}
                                 />
                             ) : (
                                 <div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-700 bg-white/80">
@@ -154,11 +184,11 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
                         >
                             {!imgError ? (
                                 <img
-                                    src={getAvatarUrl(employee)}
+                                    src={activeAvatar}
                                     alt={employee.fullName}
                                     className="h-full w-full object-cover"
                                     loading="lazy"
-                                    onError={() => setImgError(true)}
+                                    onError={handleAvatarError}
                                 />
                             ) : (
                                 <div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-700 bg-white/80">

@@ -1,6 +1,7 @@
 const ROLE_GROUP_ORDER = ['Director', 'Head Unit', 'Staff', 'Teacher', 'SE Teacher', 'Support Staff'];
 const STATUS_ORDER = ['Active', 'Probation', 'On Leave'];
 const EMPLOYMENT_ORDER = ['Permanent', 'Contract', 'Probation', 'Unknown'];
+const UNIT_DISTRIBUTION_ORDER = ['Elementary', 'Junior High', 'Kindergarten', 'RISE', 'SHIELD', 'SAFE', 'COMPASS', 'BRIDGE', 'Directorate'];
 
 const employees = [
     {
@@ -2962,6 +2963,75 @@ const employees = [
     }
 ];
 
+const LEGACY_UNIT_MAP = {
+    Operational: 'SHIELD',
+    Finance: 'SAFE',
+    CARE: 'COMPASS',
+    'MAD Lab': 'BRIDGE',
+    Pelangi: 'RISE'
+};
+
+const getMappedUnit = (employee) => {
+    if (!employee) return '';
+
+    if (employee.roleGroup === 'SE Teacher') return 'RISE';
+    if (employee.roleGroup === 'Support Staff') return 'SHIELD';
+
+    const roleTitle = String(employee.roleTitle || '').toLowerCase();
+    const unit = LEGACY_UNIT_MAP[employee.unit] || employee.unit;
+    const department = LEGACY_UNIT_MAP[employee.department] || employee.department;
+
+    if (roleTitle.includes('finance') || unit === 'SAFE' || department === 'SAFE') {
+        return 'SAFE';
+    }
+
+    if (
+        roleTitle.includes('crm')
+        || roleTitle.includes('c.a.r.e')
+        || roleTitle.includes('care')
+        || roleTitle.includes('compass')
+        || unit === 'COMPASS'
+        || department === 'COMPASS'
+    ) {
+        return 'COMPASS';
+    }
+
+    if (
+        roleTitle.includes('research')
+        || roleTitle.includes('development')
+        || roleTitle.includes('litbang')
+        || roleTitle.includes('training')
+        || unit === 'BRIDGE'
+        || department === 'BRIDGE'
+    ) {
+        return 'BRIDGE';
+    }
+
+    return unit;
+};
+
+employees.forEach((employee) => {
+    const mappedUnit = getMappedUnit(employee);
+    if (mappedUnit) {
+        employee.unit = mappedUnit;
+        employee.department = mappedUnit;
+    }
+
+    if (employee.fullName === 'Faisal Nur Hidayat') {
+        employee.roleTitle = 'Head of MAD LAB';
+        employee.roleGroup = 'Head Unit';
+        employee.unit = 'BRIDGE';
+        employee.department = 'BRIDGE';
+    }
+
+    if (employee.fullName === 'Tien Hadiningsih') {
+        employee.roleGroup = 'Head Unit';
+        employee.roleTitle = 'COMPASS Coordinator';
+        employee.unit = 'COMPASS';
+        employee.department = 'COMPASS';
+    }
+});
+
 const uniqueSorted = (items, order = []) => {
     const set = new Set(
         items.filter((item) => item !== undefined && item !== null && String(item).trim() !== '')
@@ -3134,9 +3204,7 @@ export const getSchoolOverview = () => {
 
     const byRole = groupCounts(employees, 'roleGroup', ROLE_GROUP_ORDER);
     const byEmploymentType = groupCounts(employees, 'employmentType', EMPLOYMENT_ORDER);
-    const byUnit = groupCounts(employees, 'unit')
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
+    const byUnit = groupCounts(employees, 'unit', UNIT_DISTRIBUTION_ORDER);
     const peopleMoments = getPeopleMoments();
 
     return {
@@ -3188,7 +3256,7 @@ export const getEmployees = (filters = {}) => {
 
 export const getSchoolFilters = () => ({
     roleGroups: ROLE_GROUP_ORDER,
-    units: uniqueSorted(employees.map((employee) => employee.unit)),
+    units: uniqueSorted(employees.map((employee) => employee.unit), UNIT_DISTRIBUTION_ORDER),
     statuses: uniqueSorted(employees.map((employee) => employee.status), STATUS_ORDER),
     employmentTypes: uniqueSorted(employees.map((employee) => employee.employmentType), EMPLOYMENT_ORDER)
 });
