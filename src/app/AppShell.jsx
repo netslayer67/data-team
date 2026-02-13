@@ -106,10 +106,12 @@ const AppShell = () => {
 
     useEffect(() => {
         const stopHard = queueAOSRefresh({ hard: true, delay: 56 });
-        const stopSoft = queueAOSRefresh({ hard: false, delay: 190 });
+        const stopSoft = queueAOSRefresh({ hard: false, delay: 200 });
+        const stopLazy = queueAOSRefresh({ hard: true, delay: 500 });
         return () => {
             stopHard();
             stopSoft();
+            stopLazy();
         };
     }, [location.pathname]);
 

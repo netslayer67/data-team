@@ -1,19 +1,20 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Filter, Search, Users2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import RoleGroupSection from '../components/RoleGroupSection';
 import { getEmployees, getEmployeesHierarchy, getSchoolFilters } from '../../../data/schoolData';
 import { queueAOSRefresh } from '../../../utils/aos';
 
 const EmployeeDirectoryPage = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const pageRef = useRef(null);
 
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState(() => ({
         search: '',
-        unit: '',
+        unit: searchParams.get('unit') || '',
         status: ''
-    });
+    }));
 
     const availableFilters = useMemo(() => getSchoolFilters(), []);
     const hierarchy = useMemo(() => getEmployeesHierarchy(filters), [filters]);

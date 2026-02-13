@@ -23,7 +23,7 @@ export const initAOS = (overrides = {}) => {
         anchorPlacement: 'top-bottom',
         throttleDelay: 90,
         debounceDelay: 70,
-        disableMutationObserver: true,
+        disableMutationObserver: false,
         disable: shouldDisableAOS,
         ...overrides
     };

@@ -22,20 +22,40 @@ const roleGradient = {
     Others: 'from-slate-500/80 via-slate-400/70 to-cyan-500/60'
 };
 
+const unitBadge = {
+    Elementary: 'bg-blue-100/80 text-blue-800 border-blue-200/60',
+    'Junior High': 'bg-indigo-100/80 text-indigo-800 border-indigo-200/60',
+    Kindergarten: 'bg-pink-100/80 text-pink-800 border-pink-200/60',
+    RISE: 'bg-teal-100/80 text-teal-800 border-teal-200/60',
+    SHIELD: 'bg-slate-200/80 text-slate-800 border-slate-300/60',
+    SAFE: 'bg-amber-100/80 text-amber-800 border-amber-200/60',
+    COMPASS: 'bg-cyan-100/80 text-cyan-800 border-cyan-200/60',
+    BRIDGE: 'bg-violet-100/80 text-violet-800 border-violet-200/60',
+    'MAD Lab': 'bg-fuchsia-100/80 text-fuchsia-800 border-fuchsia-200/60',
+    CARE: 'bg-rose-100/80 text-rose-800 border-rose-200/60',
+    Directorate: 'bg-sky-100/80 text-sky-800 border-sky-200/60'
+};
+
+const optimizeAvatarUrl = (url, size = 160) => {
+    if (!url || !url.includes('res.cloudinary.com')) return url;
+    return url.replace('/upload/', `/upload/f_auto,q_auto,w_${size},h_${size},c_thumb,g_face,z_0.7/`);
+};
+
 const getGeneratedAvatarUrl = (employee) => {
     const name = encodeURIComponent(employee.fullName || 'Employee');
     const bg = (employee.avatarColor || '#0ea5e9').replace('#', '');
     return `https://ui-avatars.com/api/?name=${name}&background=${bg}&color=fff&rounded=true&bold=true&size=160`;
 };
 
-const getAvatarSources = (employee) => {
+const getAvatarSources = (employee, size = 160) => {
     const fallback = getGeneratedAvatarUrl(employee);
     const unique = [];
 
     [employee?.photoUrl, ...(Array.isArray(employee?.photos) ? employee.photos : [])]
         .filter(Boolean)
         .forEach((url) => {
-            if (!unique.includes(url)) unique.push(url);
+            const optimized = optimizeAvatarUrl(url, size);
+            if (!unique.includes(optimized)) unique.push(optimized);
         });
 
     unique.push(fallback);
@@ -65,7 +85,7 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
     const [imgError, setImgError] = React.useState(false);
     const [avatarIndex, setAvatarIndex] = React.useState(0);
     const accent = roleGradient[employee.roleGroup] || roleGradient.Others;
-    const avatarSources = React.useMemo(() => getAvatarSources(employee), [employee]);
+    const avatarSources = React.useMemo(() => getAvatarSources(employee, compact ? 120 : 160), [employee, compact]);
     const activeAvatar = avatarSources[Math.min(avatarIndex, avatarSources.length - 1)];
     const initials = employee.fullName
         .split(' ')
@@ -149,10 +169,17 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
                     </div>
 
                     <div className="relative z-10 mt-2.5 space-y-1.5 text-[11px] text-slate-700">
-                        <p className="flex items-center gap-1.5 truncate">
-                            <Building2 className="h-3.5 w-3.5 text-slate-500" />
-                            <span className="truncate">{employee.unit}</span>
-                        </p>
+                        <div className="flex flex-wrap gap-1">
+                            <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${unitBadge[employee.unit] || 'bg-white/60 text-slate-700 border-white/60'}`}>
+                                <Building2 className="h-3 w-3" />
+                                {employee.unit}
+                            </span>
+                            {employee.secondaryUnit && employee.secondaryUnit !== employee.unit && (
+                                <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${unitBadge[employee.secondaryUnit] || 'bg-white/60 text-slate-700 border-white/60'}`}>
+                                    {employee.secondaryUnit}
+                                </span>
+                            )}
+                        </div>
                         <p className="flex items-center gap-1.5">
                             <CalendarDays className="h-3.5 w-3.5 text-slate-500" />
                             <span>Join Date: {formatJoinDate(employee.joinDate)}</span>
@@ -220,10 +247,17 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
                         {getSecondaryBadgeText(employee)}
                     </div>
 
-                    <p className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-slate-500" />
-                        <span>{employee.unit}</span>
-                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${unitBadge[employee.unit] || 'bg-white/60 text-slate-700 border-white/60'}`}>
+                            <Building2 className="h-3.5 w-3.5" />
+                            {employee.unit}
+                        </span>
+                        {employee.secondaryUnit && employee.secondaryUnit !== employee.unit && (
+                            <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${unitBadge[employee.secondaryUnit] || 'bg-white/60 text-slate-700 border-white/60'}`}>
+                                {employee.secondaryUnit}
+                            </span>
+                        )}
+                    </div>
                     <p className="flex items-center gap-2">
                         <CalendarDays className="h-4 w-4 text-slate-500" />
                         <span>Join Date: {formatJoinDate(employee.joinDate)}</span>

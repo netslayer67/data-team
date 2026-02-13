@@ -96,6 +96,20 @@ const getTenureText = (joinDate) => {
     return `${roundedMonths} ${roundedMonths === 1 ? 'month' : 'months'}`;
 };
 
+const unitCardStyle = {
+    Elementary: 'border-blue-200/70 bg-gradient-to-r from-blue-50/80 to-sky-50/70 text-blue-700',
+    'Junior High': 'border-indigo-200/70 bg-gradient-to-r from-indigo-50/80 to-violet-50/70 text-indigo-700',
+    Kindergarten: 'border-pink-200/70 bg-gradient-to-r from-pink-50/80 to-rose-50/70 text-pink-700',
+    RISE: 'border-teal-200/70 bg-gradient-to-r from-teal-50/80 to-emerald-50/70 text-teal-700',
+    SHIELD: 'border-slate-200/70 bg-gradient-to-r from-slate-50/80 to-gray-50/70 text-slate-700',
+    SAFE: 'border-amber-200/70 bg-gradient-to-r from-amber-50/80 to-yellow-50/70 text-amber-700',
+    COMPASS: 'border-cyan-200/70 bg-gradient-to-r from-cyan-50/80 to-sky-50/70 text-cyan-700',
+    BRIDGE: 'border-violet-200/70 bg-gradient-to-r from-violet-50/80 to-purple-50/70 text-violet-700',
+    'MAD Lab': 'border-fuchsia-200/70 bg-gradient-to-r from-fuchsia-50/80 to-purple-50/70 text-fuchsia-700',
+    CARE: 'border-rose-200/70 bg-gradient-to-r from-rose-50/80 to-pink-50/70 text-rose-700',
+    Directorate: 'border-sky-200/70 bg-gradient-to-r from-sky-50/80 to-cyan-50/70 text-sky-700'
+};
+
 const isTeachingRole = (employee) => ['Teacher', 'SE Teacher'].includes(employee?.roleGroup);
 
 const getSecondaryBadgeText = (employee) => {
@@ -167,7 +181,7 @@ const EmployeeDetailPage = () => {
         if (!employee) return null;
 
         const sameRoleTotal = employees.filter((item) => item.roleGroup === employee.roleGroup).length;
-        const sameUnitTotal = employees.filter((item) => item.unit === employee.unit).length;
+        const sameUnitTotal = employees.filter((item) => item.unit === employee.unit || item.secondaryUnit === employee.unit).length;
         return {
             sameRoleTotal,
             sameUnitTotal
@@ -273,14 +287,19 @@ const EmployeeDetailPage = () => {
 
                         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm text-slate-700">
                             <div
-                                className="rounded-xl border border-cyan-200/70 bg-gradient-to-r from-cyan-50/80 to-sky-50/70 p-3 flex items-center gap-2.5"
+                                className={`rounded-xl border p-3 flex items-center gap-2.5 ${unitCardStyle[employee.unit] || 'border-cyan-200/70 bg-gradient-to-r from-cyan-50/80 to-sky-50/70 text-cyan-700'}`}
                                 data-aos="fade-up"
                                 data-aos-delay="120"
                                 data-aos-duration="360"
                                 data-aos-once="false"
                             >
-                                <Building2 className="h-4 w-4 text-cyan-700" />
-                                <span>{employee.unit}</span>
+                                <Building2 className="h-4 w-4" />
+                                <span className="font-medium">{employee.unit}</span>
+                                {employee.secondaryUnit && employee.secondaryUnit !== employee.unit && (
+                                    <span className={`ml-1 rounded-full border px-2 py-0.5 text-[11px] font-medium ${unitCardStyle[employee.secondaryUnit] || ''}`}>
+                                        {employee.secondaryUnit}
+                                    </span>
+                                )}
                             </div>
                             <div
                                 className="rounded-xl border border-violet-200/70 bg-gradient-to-r from-violet-50/80 to-fuchsia-50/70 p-3 flex items-center gap-2.5"

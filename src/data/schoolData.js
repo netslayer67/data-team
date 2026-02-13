@@ -1,7 +1,7 @@
 const ROLE_GROUP_ORDER = ['Director', 'Head Unit', 'Staff', 'Teacher', 'SE Teacher', 'Support Staff'];
 const STATUS_ORDER = ['Active', 'Probation', 'On Leave'];
 const EMPLOYMENT_ORDER = ['Permanent', 'Contract', 'Probation', 'Unknown'];
-const UNIT_DISTRIBUTION_ORDER = ['Elementary', 'Junior High', 'Kindergarten', 'RISE', 'SHIELD', 'SAFE', 'COMPASS', 'BRIDGE', 'Directorate'];
+const UNIT_DISTRIBUTION_ORDER = ['Elementary', 'Junior High', 'Kindergarten', 'RISE', 'SHIELD', 'SAFE', 'COMPASS', 'BRIDGE', 'MAD Lab', 'CARE', 'Directorate'];
 
 const employees = [
     {
@@ -1420,7 +1420,7 @@ const employees = [
         "religion": "Islam",
         "gender": "F",
         "avatarColor": "#7c3aed",
-        "photoUrl": "https://res.cloudinary.com/deldcwiji/image/upload/v1770780125/DSC05063_gndyal.jpg",
+        "photoUrl": "https://res.cloudinary.com/deldcwiji/image/upload/v1770796935/pass_photo_720_phosje.png",
         "photos": [
             // "https://res.cloudinary.com/deldcwiji/image/upload/v1770780125/DSC05063_gndyal.jpg",
             // "https://res.cloudinary.com/deldcwiji/image/upload/v1770780125/DSC05064_awyira.jpg",
@@ -2269,27 +2269,27 @@ const employees = [
         "highlights": [],
         "endDate": "2026-06-22"
     },
-    {
-        "_id": "emp-085",
-        "fullName": "Rizki Amalia Fatikhah",
-        "username": "Kiki",
-        "roleTitle": "Training Development",
-        "roleGroup": "Staff",
-        "employeeId": "15.25.862",
-        "department": "Directorate",
-        "unit": "Directorate",
-        "className": "",
-        "building": "",
-        "joinDate": "2025-09-08",
-        "status": "Probation",
-        "email": "kiki@millennia21.id",
-        "birthDate": "05-Dec-1994",
-        "religion": "Islam",
-        "gender": "F",
-        "avatarColor": "#0ea5e9",
-        "highlights": [],
-        "endDate": "2026-06-22"
-    },
+    // {
+    //     "_id": "emp-085",
+    //     "fullName": "Rizki Amalia Fatikhah",
+    //     "username": "Kiki",
+    //     "roleTitle": "Training Development",
+    //     "roleGroup": "Staff",
+    //     "employeeId": "15.25.862",
+    //     "department": "Directorate",
+    //     "unit": "Directorate",
+    //     "className": "",
+    //     "building": "",
+    //     "joinDate": "2025-09-08",
+    //     "status": "Probation",
+    //     "email": "kiki@millennia21.id",
+    //     "birthDate": "05-Dec-1994",
+    //     "religion": "Islam",
+    //     "gender": "F",
+    //     "avatarColor": "#0ea5e9",
+    //     "highlights": [],
+    //     "endDate": "2026-06-22"
+    // },
     {
         "_id": "emp-086",
         "fullName": "Rizki Nurul Hayati",
@@ -2966,15 +2966,12 @@ const employees = [
 const LEGACY_UNIT_MAP = {
     Operational: 'SHIELD',
     Finance: 'SAFE',
-    CARE: 'COMPASS',
-    'MAD Lab': 'BRIDGE',
     Pelangi: 'RISE'
 };
 
 const getMappedUnit = (employee) => {
     if (!employee) return '';
 
-    if (employee.roleGroup === 'SE Teacher') return 'RISE';
     if (employee.roleGroup === 'Support Staff') return 'SHIELD';
 
     const roleTitle = String(employee.roleTitle || '').toLowerCase();
@@ -2986,9 +2983,15 @@ const getMappedUnit = (employee) => {
     }
 
     if (
+        roleTitle.includes('c.a.r.e')
+        || unit === 'CARE'
+        || department === 'CARE'
+    ) {
+        return 'CARE';
+    }
+
+    if (
         roleTitle.includes('crm')
-        || roleTitle.includes('c.a.r.e')
-        || roleTitle.includes('care')
         || roleTitle.includes('compass')
         || unit === 'COMPASS'
         || department === 'COMPASS'
@@ -3001,6 +3004,7 @@ const getMappedUnit = (employee) => {
         || roleTitle.includes('development')
         || roleTitle.includes('litbang')
         || roleTitle.includes('training')
+        || roleTitle.includes('librarian')
         || unit === 'BRIDGE'
         || department === 'BRIDGE'
     ) {
@@ -3017,18 +3021,34 @@ employees.forEach((employee) => {
         employee.department = mappedUnit;
     }
 
+    if (employee.roleGroup === 'SE Teacher') {
+        employee.secondaryUnit = 'RISE';
+    }
+
     if (employee.fullName === 'Faisal Nur Hidayat') {
-        employee.roleTitle = 'Head of MAD LAB';
+        employee.roleTitle = 'Head of M.A.D LAB';
         employee.roleGroup = 'Head Unit';
-        employee.unit = 'BRIDGE';
-        employee.department = 'BRIDGE';
+        employee.unit = 'MAD Lab';
+        employee.department = 'MAD Lab';
     }
 
     if (employee.fullName === 'Tien Hadiningsih') {
         employee.roleGroup = 'Head Unit';
-        employee.roleTitle = 'COMPASS Coordinator';
+        employee.roleTitle = 'C.O.M.P.A.S.S Coordinator';
         employee.unit = 'COMPASS';
         employee.department = 'COMPASS';
+    }
+
+    if (employee.fullName === 'Ahmad Haikal') {
+        employee.roleTitle = 'Head of S.H.I.E.L.D';
+    }
+
+    if (employee.fullName === 'Hana Nuzula Fajria') {
+        employee.roleTitle = 'Head of R.I.S.E';
+    }
+
+    if (employee.fullName === 'Sarah Yuliana') {
+        employee.roleTitle = 'Head of S.A.F.E';
     }
 });
 
@@ -3173,6 +3193,7 @@ const matchesSearch = (employee, query) => {
         employee.roleTitle,
         employee.employeeId,
         employee.unit,
+        employee.secondaryUnit,
         employee.department,
         employee.className,
         employee.building,
@@ -3188,7 +3209,7 @@ const applyFilters = (filters = {}) => {
     const { search, unit, status, employmentType } = filters;
     return employees.filter((employee) => {
         if (search && !matchesSearch(employee, search)) return false;
-        if (unit && employee.unit !== unit) return false;
+        if (unit && employee.unit !== unit && employee.secondaryUnit !== unit) return false;
         if (status && employee.status !== status) return false;
         if (employmentType && employee.employmentType !== employmentType) return false;
         return true;
@@ -3204,7 +3225,14 @@ export const getSchoolOverview = () => {
 
     const byRole = groupCounts(employees, 'roleGroup', ROLE_GROUP_ORDER);
     const byEmploymentType = groupCounts(employees, 'employmentType', EMPLOYMENT_ORDER);
-    const byUnit = groupCounts(employees, 'unit', UNIT_DISTRIBUTION_ORDER);
+    const unitCounts = {};
+    employees.forEach((employee) => {
+        if (employee.unit) unitCounts[employee.unit] = (unitCounts[employee.unit] || 0) + 1;
+        if (employee.secondaryUnit && employee.secondaryUnit !== employee.unit) {
+            unitCounts[employee.secondaryUnit] = (unitCounts[employee.secondaryUnit] || 0) + 1;
+        }
+    });
+    const byUnit = UNIT_DISTRIBUTION_ORDER.map((u) => ({ _id: u, count: unitCounts[u] || 0 }));
     const peopleMoments = getPeopleMoments();
 
     return {
@@ -3256,7 +3284,7 @@ export const getEmployees = (filters = {}) => {
 
 export const getSchoolFilters = () => ({
     roleGroups: ROLE_GROUP_ORDER,
-    units: uniqueSorted(employees.map((employee) => employee.unit), UNIT_DISTRIBUTION_ORDER),
+    units: uniqueSorted(employees.flatMap((employee) => [employee.unit, employee.secondaryUnit].filter(Boolean)), UNIT_DISTRIBUTION_ORDER),
     statuses: uniqueSorted(employees.map((employee) => employee.status), STATUS_ORDER),
     employmentTypes: uniqueSorted(employees.map((employee) => employee.employmentType), EMPLOYMENT_ORDER)
 });

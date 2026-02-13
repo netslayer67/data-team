@@ -338,7 +338,8 @@ export const InteractiveKpiCard = ({
     accent = 'from-cyan-500/80 to-sky-500/80',
     delay = 0,
     trend = null,
-    onClick
+    onClick,
+    compact = false
 }) => {
     const [isHovered, setIsHovered] = useState(false);
     const hasTrend = typeof trend === 'number';
@@ -356,14 +357,14 @@ export const InteractiveKpiCard = ({
 
     return (
         <InteractiveCard
-            className="p-5 cursor-pointer"
+            className={`cursor-pointer ${compact ? 'p-3 sm:p-4' : 'p-3.5 sm:p-4 md:p-5'}`}
             accent={accent}
             delay={delay}
             onClick={onClick}
             onHoverChange={setIsHovered}
         >
             <motion.div
-                className="flex items-start justify-between"
+                className="flex items-start justify-between gap-2"
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -371,7 +372,7 @@ export const InteractiveKpiCard = ({
             >
                 <div>
                     <motion.p
-                        className="text-xs uppercase tracking-[0.18em] text-slate-500"
+                        className={`uppercase text-slate-500 ${compact ? 'text-[10px] tracking-[0.14em]' : 'text-[10px] sm:text-xs tracking-[0.16em] sm:tracking-[0.18em]'}`}
                         animate={{
                             color: isHovered ? '#0891b2' : '#64748b'
                         }}
@@ -380,7 +381,7 @@ export const InteractiveKpiCard = ({
                         {label}
                     </motion.p>
                     <motion.p
-                        className="mt-3 font-display text-3xl font-semibold text-slate-900"
+                        className={`font-display font-semibold text-slate-900 ${compact ? 'mt-1.5 text-2xl sm:text-[30px]' : 'mt-2 text-[28px] sm:text-3xl'}`}
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
@@ -390,7 +391,7 @@ export const InteractiveKpiCard = ({
                     </motion.p>
                     {hint && (
                         <motion.p
-                            className="mt-2 text-sm text-slate-600"
+                            className={`text-slate-600 ${compact ? 'mt-1 text-[11px] leading-tight' : 'mt-1.5 text-[11px] sm:text-sm leading-tight sm:leading-normal'}`}
                             initial={{ opacity: 0 }}
                             whileInView={{ opacity: 1 }}
                             viewport={{ once: true }}
@@ -403,7 +404,7 @@ export const InteractiveKpiCard = ({
 
                 {hasTrend && (
                     <motion.div
-                        className={`rounded-full px-2 py-1 text-xs font-semibold ${trendPillStyle}`}
+                        className={`rounded-full px-2 py-1 text-[10px] sm:text-xs font-semibold ${trendPillStyle}`}
                         initial={{ opacity: 0, scale: 0 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
