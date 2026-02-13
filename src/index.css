@@ -855,12 +855,6 @@
     contain-intrinsic-size: auto;
 }
 
-.reduced-effects [data-aos] {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-}
-
 .reduced-effects .three-backdrop-container {
     display: none;
 }

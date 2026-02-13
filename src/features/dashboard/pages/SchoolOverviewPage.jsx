@@ -58,9 +58,11 @@ const SchoolOverviewPage = () => {
     useEffect(() => {
         const stopSoft = queueAOSRefresh({ hard: false, delay: 42 });
         const stopFollowup = queueAOSRefresh({ hard: false, delay: 220 });
+        const stopLate = queueAOSRefresh({ hard: false, delay: 520 });
         return () => {
             stopSoft();
             stopFollowup();
+            stopLate();
         };
     }, [density]);
 
@@ -125,8 +127,8 @@ const SchoolOverviewPage = () => {
                                 type="button"
                                 onClick={() => setDensityMode('comfortable')}
                                 className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition ${density === 'comfortable'
-                                        ? 'bg-white text-slate-800 shadow-sm'
-                                        : 'text-slate-600 hover:bg-white/70'
+                                    ? 'bg-white text-slate-800 shadow-sm'
+                                    : 'text-slate-600 hover:bg-white/70'
                                     }`}
                             >
                                 <StretchHorizontal className="h-3.5 w-3.5" />
@@ -136,8 +138,8 @@ const SchoolOverviewPage = () => {
                                 type="button"
                                 onClick={() => setDensityMode('compact')}
                                 className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs transition ${density === 'compact'
-                                        ? 'bg-white text-slate-800 shadow-sm'
-                                        : 'text-slate-600 hover:bg-white/70'
+                                    ? 'bg-white text-slate-800 shadow-sm'
+                                    : 'text-slate-600 hover:bg-white/70'
                                     }`}
                             >
                                 <List className="h-3.5 w-3.5" />
@@ -209,9 +211,9 @@ const SchoolOverviewPage = () => {
                 data-aos-once="false"
                 data-aos-anchor-placement="top-bottom"
             >
-                <Suspense fallback={<section className="glass-surface rounded-3xl p-5 h-[280px]" />}>
+                {/* <Suspense fallback={<section className="glass-surface rounded-3xl p-5 h-[280px]" />}>
                     <ZodiacForecast density={density} />
-                </Suspense>
+                </Suspense> */}
             </div>
 
             <section

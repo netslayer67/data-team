@@ -46,9 +46,11 @@ const EmployeeDirectoryPage = () => {
     useEffect(() => {
         const stopHard = queueAOSRefresh({ hard: true, delay: 28 });
         const stopSoft = queueAOSRefresh({ hard: false, delay: 180 });
+        const stopLate = queueAOSRefresh({ hard: false, delay: 520 });
         return () => {
             stopHard();
             stopSoft();
+            stopLate();
         };
     }, [aosRefreshKey]);
 

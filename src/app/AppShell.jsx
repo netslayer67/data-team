@@ -100,18 +100,26 @@ const AppShell = () => {
 
     useEffect(() => {
         initAOS();
-        const stop = queueAOSRefresh({ hard: true, delay: 28 });
-        return stop;
+        const stopA = queueAOSRefresh({ hard: true, delay: 28 });
+        const stopB = queueAOSRefresh({ hard: false, delay: 260 });
+        const stopC = queueAOSRefresh({ hard: false, delay: 560 });
+        return () => {
+            stopA();
+            stopB();
+            stopC();
+        };
     }, []);
 
     useEffect(() => {
         const stopHard = queueAOSRefresh({ hard: true, delay: 56 });
         const stopSoft = queueAOSRefresh({ hard: false, delay: 200 });
         const stopLazy = queueAOSRefresh({ hard: true, delay: 500 });
+        const stopLate = queueAOSRefresh({ hard: false, delay: 760 });
         return () => {
             stopHard();
             stopSoft();
             stopLazy();
+            stopLate();
         };
     }, [location.pathname]);
 

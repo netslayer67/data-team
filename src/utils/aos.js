@@ -4,9 +4,10 @@ let initialized = false;
 
 const shouldDisableAOS = () => {
     if (typeof window === 'undefined') return true;
+    const saveData = navigator.connection?.saveData === true;
     return (
         window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        || document.documentElement.classList.contains('reduced-effects')
+        || saveData
     );
 };
 
@@ -35,32 +36,45 @@ export const initAOS = (overrides = {}) => {
         AOS.refreshHard();
     }
 
-    window.requestAnimationFrame(() => {
-        AOS.refresh();
-    });
+    const runRefresh = (hard = false) => {
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+                if (hard) AOS.refreshHard();
+                AOS.refresh();
+            });
+        });
+    };
+
+    runRefresh(false);
+    window.setTimeout(() => runRefresh(true), 180);
+    window.setTimeout(() => runRefresh(false), 420);
 };
 
 export const queueAOSRefresh = ({ hard = false, delay = 0 } = {}) => {
     if (typeof window === 'undefined') return () => {};
 
-    let raf = 0;
+    let rafA = 0;
+    let rafB = 0;
     const timer = window.setTimeout(() => {
-        raf = window.requestAnimationFrame(() => {
+        rafA = window.requestAnimationFrame(() => {
             if (!initialized) {
                 initAOS();
                 return;
             }
 
-            if (hard) {
-                AOS.refreshHard();
-            }
+            rafB = window.requestAnimationFrame(() => {
+                if (hard) {
+                    AOS.refreshHard();
+                }
 
-            AOS.refresh();
+                AOS.refresh();
+            });
         });
     }, Math.max(0, delay));
 
     return () => {
         window.clearTimeout(timer);
-        if (raf) window.cancelAnimationFrame(raf);
+        if (rafA) window.cancelAnimationFrame(rafA);
+        if (rafB) window.cancelAnimationFrame(rafB);
     };
 };

@@ -192,15 +192,18 @@ const EmployeeDetailPage = () => {
         setIsLoading(true);
         let stopHard = () => {};
         let stopSoft = () => {};
+        let stopLate = () => {};
         const timer = window.setTimeout(() => {
             setIsLoading(false);
             stopHard = queueAOSRefresh({ hard: true, delay: 32 });
             stopSoft = queueAOSRefresh({ hard: false, delay: 180 });
+            stopLate = queueAOSRefresh({ hard: false, delay: 520 });
         }, 260);
         return () => {
             window.clearTimeout(timer);
             stopHard();
             stopSoft();
+            stopLate();
         };
     }, [employeeId]);
 
