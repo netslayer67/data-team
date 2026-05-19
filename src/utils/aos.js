@@ -18,13 +18,15 @@ export const initAOS = (overrides = {}) => {
         duration: 480,
         delay: 0,
         easing: 'ease-out-cubic',
-        once: false,
-        mirror: true,
-        offset: 26,
+        once: true,
+        mirror: false,
+        offset: 24,
         anchorPlacement: 'top-bottom',
-        throttleDelay: 90,
-        debounceDelay: 70,
-        disableMutationObserver: false,
+        throttleDelay: 110,
+        debounceDelay: 90,
+        // MutationObserver must stay ON so AOS auto-detects elements added
+        // after React renders lazy-loaded routes or Suspense resolves.
+        // Disabling it causes components to stay invisible until page refresh.
         disable: shouldDisableAOS,
         ...overrides
     };
@@ -38,16 +40,16 @@ export const initAOS = (overrides = {}) => {
 
     const runRefresh = (hard = false) => {
         window.requestAnimationFrame(() => {
-            window.requestAnimationFrame(() => {
-                if (hard) AOS.refreshHard();
-                AOS.refresh();
-            });
+            if (hard) {
+                AOS.refreshHard();
+                return;
+            }
+            AOS.refresh();
         });
     };
 
     runRefresh(false);
     window.setTimeout(() => runRefresh(true), 180);
-    window.setTimeout(() => runRefresh(false), 420);
 };
 
 export const queueAOSRefresh = ({ hard = false, delay = 0 } = {}) => {
@@ -65,9 +67,9 @@ export const queueAOSRefresh = ({ hard = false, delay = 0 } = {}) => {
             rafB = window.requestAnimationFrame(() => {
                 if (hard) {
                     AOS.refreshHard();
+                } else {
+                    AOS.refresh();
                 }
-
-                AOS.refresh();
             });
         });
     }, Math.max(0, delay));

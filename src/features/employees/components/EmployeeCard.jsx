@@ -80,12 +80,10 @@ const getSecondaryBadgeText = (employee) => {
     return '-';
 };
 
-const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
-    const [isHovered, setIsHovered] = React.useState(false);
+const useEmployeeAvatar = (employee, size) => {
     const [imgError, setImgError] = React.useState(false);
     const [avatarIndex, setAvatarIndex] = React.useState(0);
-    const accent = roleGradient[employee.roleGroup] || roleGradient.Others;
-    const avatarSources = React.useMemo(() => getAvatarSources(employee, compact ? 120 : 160), [employee, compact]);
+    const avatarSources = React.useMemo(() => getAvatarSources(employee, size), [employee, size]);
     const activeAvatar = avatarSources[Math.min(avatarIndex, avatarSources.length - 1)];
     const initials = employee.fullName
         .split(' ')
@@ -103,92 +101,103 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
             setAvatarIndex((prev) => prev + 1);
             return;
         }
+
         setImgError(true);
     };
 
-    if (compact) {
-        return (
-            <InteractiveCard
-                className="cursor-pointer overflow-hidden h-full"
-                accent={accent}
-                delay={delay}
-                onHoverChange={setIsHovered}
-                onClick={() => onClick?.(employee)}
-                forceVisible
-            >
-                <div className="relative p-3.5 h-full flex flex-col">
-                    <div className={`absolute inset-x-0 top-0 h-14 bg-gradient-to-r ${accent} opacity-30`} />
+    return {
+        imgError,
+        activeAvatar,
+        initials,
+        handleAvatarError
+    };
+};
 
-                    <div className="relative z-10 flex items-start gap-2.5 min-w-0">
-                        <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/60 bg-white/70">
-                            {!imgError ? (
-                                <img
-                                    src={activeAvatar}
-                                    alt={employee.fullName}
-                                    className="h-full w-full object-cover"
-                                    loading="lazy"
-                                    onError={handleAvatarError}
-                                />
-                            ) : (
-                                <div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-700 bg-white/80">
-                                    {initials}
-                                </div>
-                            )}
-                        </div>
+const CompactEmployeeCard = React.memo(({ employee, accent, onClick }) => {
+    const {
+        imgError,
+        activeAvatar,
+        initials,
+        handleAvatarError
+    } = useEmployeeAvatar(employee, 112);
 
-                        <div className="min-w-0 flex-1">
-                            <motion.p
-                                className="font-display text-[15px] font-semibold leading-tight text-slate-900 truncate"
-                                animate={{ color: isHovered ? '#0369a1' : '#0f172a' }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                {employee.fullName}
-                            </motion.p>
-                            <p
-                                className="text-[11px] text-slate-700 leading-tight mt-0.5"
-                                style={{
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden'
-                                }}
-                            >
-                                {employee.roleTitle}
-                            </p>
-                            <p className="text-[10px] uppercase tracking-[0.14em] text-cyan-800 mt-1">{employee.employeeId}</p>
-                        </div>
+    return (
+        <button
+            type="button"
+            className="employee-list-card h-full w-full text-left"
+            onClick={() => onClick?.(employee)}
+            aria-label={`View ${employee.fullName}`}
+        >
+            <div className={`employee-list-card__band bg-gradient-to-r ${accent}`} />
+
+            <div className="employee-list-card__body">
+                <div className="flex items-start gap-3.5">
+                    <div className="employee-list-card__avatar">
+                        {!imgError ? (
+                            <img
+                                src={activeAvatar}
+                                alt={employee.fullName}
+                                className="h-full w-full object-cover"
+                                decoding="async"
+                                onError={handleAvatarError}
+                            />
+                        ) : (
+                            <div className="absolute inset-0 flex items-center justify-center bg-white/80 text-xs font-semibold text-slate-700">
+                                {initials}
+                            </div>
+                        )}
                     </div>
 
-                    <div className="relative z-10 mt-3 flex items-center justify-between gap-2">
-                        <span className="rounded-full border border-white/70 bg-white/70 px-2 py-0.5 text-[10px] font-medium text-slate-700 truncate max-w-[55%]">
-                            {getSecondaryBadgeText(employee)}
-                        </span>
-                        <span className="rounded-full border border-white/70 bg-white/70 px-2 py-0.5 text-[10px] font-medium text-slate-700">
-                            {employee.status}
-                        </span>
-                    </div>
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <p className="font-display text-[17px] font-semibold leading-tight text-slate-900 truncate">
+                                    {employee.fullName}
+                                </p>
+                                <p className="employee-list-card__role">{employee.roleTitle}</p>
+                            </div>
 
-                    <div className="relative z-10 mt-2.5 space-y-1.5 text-[11px] text-slate-700">
-                        <div className="flex flex-wrap gap-1">
-                            <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${unitBadge[employee.unit] || 'bg-white/60 text-slate-700 border-white/60'}`}>
+                            <span className="employee-list-card__status shrink-0">{employee.status}</span>
+                        </div>
+
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                            <span className="employee-list-card__pill employee-list-card__pill--id">{employee.employeeId}</span>
+                            <span className={`employee-list-card__pill ${unitBadge[employee.unit] || 'bg-white/70 text-slate-700 border-white/70'}`}>
                                 <Building2 className="h-3 w-3" />
                                 {employee.unit}
                             </span>
                             {employee.secondaryUnit && employee.secondaryUnit !== employee.unit && (
-                                <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${unitBadge[employee.secondaryUnit] || 'bg-white/60 text-slate-700 border-white/60'}`}>
+                                <span className={`employee-list-card__pill ${unitBadge[employee.secondaryUnit] || 'bg-white/70 text-slate-700 border-white/70'}`}>
                                     {employee.secondaryUnit}
                                 </span>
                             )}
                         </div>
-                        <p className="flex items-center gap-1.5">
-                            <CalendarDays className="h-3.5 w-3.5 text-slate-500" />
-                            <span>Join Date: {formatJoinDate(employee.joinDate)}</span>
-                        </p>
                     </div>
                 </div>
-            </InteractiveCard>
-        );
-    }
+
+                <div className="employee-list-card__meta-grid">
+                    <div className="employee-list-card__meta">
+                        <span className="employee-list-card__meta-label">Focus</span>
+                        <span className="employee-list-card__meta-value truncate">{getSecondaryBadgeText(employee)}</span>
+                    </div>
+                    <div className="employee-list-card__meta">
+                        <span className="employee-list-card__meta-label">Join Date</span>
+                        <span className="employee-list-card__meta-value">{formatJoinDate(employee.joinDate)}</span>
+                    </div>
+                </div>
+            </div>
+        </button>
+    );
+});
+
+const InteractiveEmployeeCard = ({ employee, accent, delay = 0, onClick }) => {
+    const [isHovered, setIsHovered] = React.useState(false);
+    const {
+        imgError,
+        activeAvatar,
+        initials,
+        handleAvatarError
+    } = useEmployeeAvatar(employee, 160);
 
     return (
         <InteractiveCard
@@ -214,11 +223,11 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
                                     src={activeAvatar}
                                     alt={employee.fullName}
                                     className="h-full w-full object-cover"
-                                    loading="lazy"
+                                    decoding="async"
                                     onError={handleAvatarError}
                                 />
                             ) : (
-                                <div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-700 bg-white/80">
+                                <div className="absolute inset-0 flex items-center justify-center bg-white/80 text-xs font-semibold text-slate-700">
                                     {initials}
                                 </div>
                             )}
@@ -291,6 +300,23 @@ const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
                 )}
             </div>
         </InteractiveCard>
+    );
+};
+
+const EmployeeCard = ({ employee, delay = 0, onClick, compact = false }) => {
+    const accent = roleGradient[employee.roleGroup] || roleGradient.Others;
+
+    if (compact) {
+        return <CompactEmployeeCard employee={employee} accent={accent} onClick={onClick} />;
+    }
+
+    return (
+        <InteractiveEmployeeCard
+            employee={employee}
+            accent={accent}
+            delay={delay}
+            onClick={onClick}
+        />
     );
 };
 

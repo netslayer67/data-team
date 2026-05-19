@@ -103,7 +103,7 @@ const PhotoCarousel = ({ photos = [], employeeName = 'Employee' }) => {
                     src={optimizeCloudinaryUrl(photos[0], { width: 600 })}
                     alt={employeeName}
                     className="h-full w-full object-cover"
-                    loading="lazy"
+                    decoding="async"
                 />
             </div>
         );
@@ -133,7 +133,7 @@ const PhotoCarousel = ({ photos = [], employeeName = 'Employee' }) => {
                             exit="exit"
                             transition={transition}
                             className="absolute inset-0 h-full w-full object-cover"
-                            loading="lazy"
+                            decoding="async"
                             draggable={false}
                         />
                     </AnimatePresence>

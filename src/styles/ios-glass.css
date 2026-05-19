@@ -5,10 +5,10 @@
 
 @layer components {
     :root {
-        --ios-glass-blur-strong: 50px;
-        --ios-glass-blur-medium: 40px;
-        --ios-glass-sat: 205%;
-        --ios-glass-bright: 1.08;
+        --ios-glass-blur-strong: 18px;
+        --ios-glass-blur-medium: 12px;
+        --ios-glass-sat: 145%;
+        --ios-glass-bright: 1.03;
     }
 
     .ios-glass,
@@ -137,7 +137,6 @@
                 rgba(255, 255, 255, 0) 0deg,
                 rgba(255, 255, 255, 0.32) 84deg,
                 rgba(255, 255, 255, 0) 160deg);
-        animation: liquidShine 9s cubic-bezier(0.4, 0.1, 0.2, 1) infinite;
         pointer-events: none;
         z-index: 1;
         will-change: transform, opacity;
@@ -152,7 +151,6 @@
                 rgba(255, 255, 255, 0.18) 0%,
                 rgba(125, 211, 252, 0.12) 32%,
                 transparent 66%);
-        animation: liquidRipple 7s cubic-bezier(0.4, 0.1, 0.2, 1) infinite;
         pointer-events: none;
         z-index: 2;
         will-change: transform, opacity;
@@ -175,8 +173,8 @@
         -webkit-backdrop-filter: blur(var(--ios-glass-blur-strong)) saturate(var(--ios-glass-sat)) brightness(var(--ios-glass-bright));
         border: 1px solid rgba(255, 255, 255, 0.78);
         box-shadow:
-            0 24px 70px rgba(8, 47, 73, 0.2),
-            0 10px 30px rgba(14, 116, 144, 0.14),
+            0 16px 36px rgba(8, 47, 73, 0.16),
+            0 8px 18px rgba(14, 116, 144, 0.1),
             inset 0 1px 0 rgba(255, 255, 255, 0.9),
             inset 0 -1px 0 rgba(255, 255, 255, 0.36);
         border-radius: 32px;
@@ -229,12 +227,11 @@
     }
 
     .ios-floating-bar-morph::after {
-        animation: dockMorphGlow 0.8s ease;
+        animation: none;
     }
 
     .ios-floating-bar-morph .ios-icon-button {
-        animation: dockMicroWave 460ms cubic-bezier(0.22, 1, 0.36, 1);
-        animation-delay: calc(var(--dock-i) * 38ms);
+        animation: none;
     }
 
     .ios-button {
@@ -243,8 +240,8 @@
             linear-gradient(178deg,
                 rgba(255, 255, 255, 0.9) 0%,
                 rgba(236, 246, 255, 0.74) 100%);
-        backdrop-filter: blur(40px) saturate(190%) brightness(1.06);
-        -webkit-backdrop-filter: blur(40px) saturate(190%) brightness(1.06);
+        backdrop-filter: blur(14px) saturate(140%) brightness(1.03);
+        -webkit-backdrop-filter: blur(14px) saturate(140%) brightness(1.03);
         border: 1px solid rgba(255, 255, 255, 0.68);
         box-shadow:
             0 6px 18px rgba(8, 47, 73, 0.14),
@@ -289,8 +286,8 @@
                 rgba(255, 255, 255, 0.92) 0%,
                 rgba(236, 246, 255, 0.76) 100%),
             radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 48%);
-        backdrop-filter: blur(40px) saturate(190%) brightness(1.06);
-        -webkit-backdrop-filter: blur(40px) saturate(190%) brightness(1.06);
+        backdrop-filter: blur(var(--ios-glass-blur-medium)) saturate(var(--ios-glass-sat)) brightness(var(--ios-glass-bright));
+        -webkit-backdrop-filter: blur(var(--ios-glass-blur-medium)) saturate(var(--ios-glass-sat)) brightness(var(--ios-glass-bright));
         border: 1px solid rgba(255, 255, 255, 0.7);
         box-shadow:
             0 6px 18px rgba(8, 47, 73, 0.14),
@@ -356,8 +353,8 @@
         -webkit-backdrop-filter: blur(var(--ios-glass-blur-medium)) saturate(var(--ios-glass-sat)) brightness(var(--ios-glass-bright));
         border: 1px solid rgba(255, 255, 255, 0.76);
         box-shadow:
-            0 20px 58px rgba(8, 47, 73, 0.18),
-            0 8px 26px rgba(14, 116, 144, 0.12),
+            0 14px 34px rgba(8, 47, 73, 0.14),
+            0 6px 18px rgba(14, 116, 144, 0.08),
             inset 0 2px 0 rgba(255, 255, 255, 0.86),
             inset 0 -2px 0 rgba(255, 255, 255, 0.28),
             inset 1px 0 0 rgba(255, 255, 255, 0.22);
@@ -371,8 +368,8 @@
     .ios-card:hover {
         border-color: rgba(255, 255, 255, 0.88);
         box-shadow:
-            0 28px 76px rgba(8, 47, 73, 0.24),
-            0 12px 36px rgba(14, 116, 144, 0.16),
+            0 18px 42px rgba(8, 47, 73, 0.16),
+            0 8px 20px rgba(14, 116, 144, 0.1),
             inset 0 2px 0 rgba(255, 255, 255, 0.88),
             inset 0 -2px 0 rgba(255, 255, 255, 0.34),
             inset 1px 0 0 rgba(255, 255, 255, 0.22);
@@ -393,10 +390,9 @@
                 rgba(255, 255, 255, 0) 0deg,
                 rgba(255, 255, 255, 0.22) 86deg,
                 rgba(255, 255, 255, 0) 164deg);
-        animation: cardShine 16s linear infinite;
         pointer-events: none;
         z-index: 1;
-        opacity: 0.16;
+        opacity: 0.08;
         will-change: transform, opacity;
         transition: opacity 0.3s ease;
     }
@@ -420,11 +416,11 @@
     }
 
     .ios-card:hover::before {
-        opacity: 0.5;
+        opacity: 0.18;
     }
 
     .ios-card:hover::after {
-        opacity: 0.62;
+        opacity: 0.5;
     }
 
     .ios-card.ios-card-touch-active {
@@ -453,8 +449,8 @@
             linear-gradient(180deg,
                 rgba(255, 255, 255, 0.84) 0%,
                 rgba(236, 246, 255, 0.64) 100%);
-        backdrop-filter: blur(36px) saturate(180%) brightness(1.05);
-        -webkit-backdrop-filter: blur(36px) saturate(180%) brightness(1.05);
+        backdrop-filter: blur(var(--ios-glass-blur-medium)) saturate(var(--ios-glass-sat)) brightness(var(--ios-glass-bright));
+        -webkit-backdrop-filter: blur(var(--ios-glass-blur-medium)) saturate(var(--ios-glass-sat)) brightness(var(--ios-glass-bright));
         border: 1px solid rgba(255, 255, 255, 0.62);
         box-shadow:
             0 4px 16px rgba(8, 47, 73, 0.1),

@@ -1,11 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { ArrowLeft, Building2, CalendarDays, Cake, Mail, Phone, Sparkles, Users2 } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
-import EmployeeCard from '../components/EmployeeCard';
+import EmployeeListCard from '../components/EmployeeListCard';
 import PhotoCarousel from '../components/PhotoCarousel';
 import { employees, getEmployeeById, getRelatedEmployees } from '../../../data/schoolData';
-import { queueAOSRefresh } from '../../../utils/aos';
 
 const getAvatarUrl = (employee) => {
     if (employee?.photoUrl) return employee.photoUrl;
@@ -137,41 +136,10 @@ const getFormalUsername = (employee) => {
     return prefix ? `${prefix} ${username}` : username;
 };
 
-const DetailSkeleton = () => (
-    <div className="space-y-5 animate-pulse">
-        <section className="glass-surface rounded-3xl p-5">
-            <div className="h-8 w-28 rounded-lg bg-white/50" />
-            <div className="mt-4 grid grid-cols-1 gap-5 xl:grid-cols-[260px_1fr]">
-                <div className="h-[300px] rounded-3xl bg-white/40" />
-                <div className="space-y-3">
-                    <div className="h-6 w-48 rounded-lg bg-white/40" />
-                    <div className="h-4 w-40 rounded-lg bg-white/35" />
-                    <div className="h-4 w-64 rounded-lg bg-white/35" />
-                    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div className="h-12 rounded-xl bg-white/35" />
-                        <div className="h-12 rounded-xl bg-white/35" />
-                        <div className="h-12 rounded-xl bg-white/35" />
-                        <div className="h-12 rounded-xl bg-white/35" />
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section className="glass-surface rounded-3xl p-5">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                <div className="h-36 rounded-2xl bg-white/35" />
-                <div className="h-36 rounded-2xl bg-white/35" />
-                <div className="h-36 rounded-2xl bg-white/35" />
-            </div>
-        </section>
-    </div>
-);
-
 const EmployeeDetailPage = () => {
     const navigate = useNavigate();
     const { employeeId } = useParams();
     const shouldReduceMotion = useReducedMotion();
-    const [isLoading, setIsLoading] = useState(true);
 
     const employee = useMemo(() => getEmployeeById(employeeId), [employeeId]);
     const relatedEmployees = useMemo(() => getRelatedEmployees(employeeId, 6), [employeeId]);
@@ -188,26 +156,7 @@ const EmployeeDetailPage = () => {
         };
     }, [employee]);
 
-    useEffect(() => {
-        setIsLoading(true);
-        let stopHard = () => {};
-        let stopSoft = () => {};
-        let stopLate = () => {};
-        const timer = window.setTimeout(() => {
-            setIsLoading(false);
-            stopHard = queueAOSRefresh({ hard: true, delay: 32 });
-            stopSoft = queueAOSRefresh({ hard: false, delay: 180 });
-            stopLate = queueAOSRefresh({ hard: false, delay: 520 });
-        }, 260);
-        return () => {
-            window.clearTimeout(timer);
-            stopHard();
-            stopSoft();
-            stopLate();
-        };
-    }, [employeeId]);
-
-    if (!employee && !isLoading) {
+    if (!employee) {
         return (
             <section className="glass-surface rounded-3xl p-6">
                 <p className="text-slate-700">Employee not found.</p>
@@ -218,17 +167,13 @@ const EmployeeDetailPage = () => {
         );
     }
 
-    if (isLoading || !employee || !stats) {
-        return <DetailSkeleton />;
-    }
-
     return (
         <div className="space-y-5">
             <section
                 className="glass-surface relative overflow-hidden rounded-3xl p-5 md:p-6"
                 data-aos="fade-up"
                 data-aos-duration="420"
-                data-aos-once="false"
+                data-aos-once="true"
                 data-aos-anchor-placement="top-bottom"
             >
                 <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-cyan-300/35 to-sky-400/20 blur-2xl" />
@@ -244,7 +189,7 @@ const EmployeeDetailPage = () => {
                 </button>
 
                 <div className="relative z-10 grid grid-cols-1 gap-5 xl:grid-cols-[260px_1fr]">
-                    <div data-aos="zoom-in" data-aos-delay="60" data-aos-duration="420" data-aos-once="false">
+                    <div>
                         <div className="overflow-hidden rounded-3xl border border-white/70 bg-gradient-to-b from-white/80 to-white/55 p-2 shadow-sm">
                             {getEmployeePhotos(employee).length > 0 ? (
                                 <PhotoCarousel photos={getEmployeePhotos(employee)} employeeName={employee.fullName} />
@@ -256,7 +201,7 @@ const EmployeeDetailPage = () => {
                         </div>
                     </div>
 
-                    <div data-aos="fade-left" data-aos-delay="100" data-aos-duration="420" data-aos-once="false">
+                    <div>
                         <p className="text-xs uppercase tracking-[0.16em] text-cyan-700">Employee Detail</p>
                         <h3 className="font-display text-3xl font-semibold text-slate-900">{employee.fullName}</h3>
                         <p className="mt-0.5 text-sm font-medium text-slate-600">{getFormalUsername(employee)}</p>
@@ -291,10 +236,6 @@ const EmployeeDetailPage = () => {
                         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm text-slate-700">
                             <div
                                 className={`rounded-xl border p-3 flex items-center gap-2.5 ${unitCardStyle[employee.unit] || 'border-cyan-200/70 bg-gradient-to-r from-cyan-50/80 to-sky-50/70 text-cyan-700'}`}
-                                data-aos="fade-up"
-                                data-aos-delay="120"
-                                data-aos-duration="360"
-                                data-aos-once="false"
                             >
                                 <Building2 className="h-4 w-4" />
                                 <span className="font-medium">{employee.unit}</span>
@@ -306,10 +247,6 @@ const EmployeeDetailPage = () => {
                             </div>
                             <div
                                 className="rounded-xl border border-violet-200/70 bg-gradient-to-r from-violet-50/80 to-fuchsia-50/70 p-3 flex items-center gap-2.5"
-                                data-aos="fade-up"
-                                data-aos-delay="140"
-                                data-aos-duration="360"
-                                data-aos-once="false"
                             >
                                 <CalendarDays className="h-4 w-4 text-violet-700" />
                                 <span><span className="font-medium">Join Date:</span> {formatJoinDate(employee.joinDate)}</span>
@@ -317,10 +254,6 @@ const EmployeeDetailPage = () => {
                             {employee.email && (
                                 <div
                                     className="rounded-xl border border-emerald-200/70 bg-gradient-to-r from-emerald-50/80 to-teal-50/70 p-3 flex items-center gap-2.5"
-                                    data-aos="fade-up"
-                                    data-aos-delay="160"
-                                    data-aos-duration="360"
-                                    data-aos-once="false"
                                 >
                                     <Mail className="h-4 w-4 text-emerald-700" />
                                     <span className="truncate">{employee.email}</span>
@@ -329,10 +262,6 @@ const EmployeeDetailPage = () => {
                             {employee.birthDate && (
                                 <div
                                     className="rounded-xl border border-amber-200/70 bg-gradient-to-r from-amber-50/80 to-rose-50/70 p-3 flex items-center gap-2.5"
-                                    data-aos="fade-up"
-                                    data-aos-delay="180"
-                                    data-aos-duration="360"
-                                    data-aos-once="false"
                                 >
                                     <motion.span
                                         className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-white/70 bg-white/80 text-amber-600 shadow-sm"
@@ -359,14 +288,10 @@ const EmployeeDetailPage = () => {
 
                         {employee.highlights?.length > 0 && (
                             <div className="mt-4 flex flex-wrap gap-2">
-                                {employee.highlights.map((item, index) => (
+                                {employee.highlights.map((item) => (
                                     <span
                                         key={`${employee._id}-${item}`}
                                         className="inline-flex items-center gap-1 rounded-full border border-white/70 bg-white/70 px-2.5 py-1 text-xs text-slate-700"
-                                        data-aos="zoom-in"
-                                        data-aos-delay={220 + (index * 40)}
-                                        data-aos-duration="320"
-                                        data-aos-once="false"
                                     >
                                         <Sparkles className="h-3 w-3 text-cyan-600" />
                                         {item}
@@ -382,34 +307,26 @@ const EmployeeDetailPage = () => {
                 className="glass-surface rounded-3xl p-5"
                 data-aos="fade-up"
                 data-aos-duration="420"
-                data-aos-once="false"
+                data-aos-once="true"
                 data-aos-anchor-placement="top-bottom"
             >
-                <div className="mb-4 flex items-center justify-between gap-3">
-                    <h4 className="font-display text-xl font-semibold text-slate-900 inline-flex items-center gap-2">
-                        <Users2 className="h-5 w-5 text-cyan-700" /> Related Team Members
+                <div className="mb-3 flex items-center justify-between gap-3">
+                    <h4 className="font-display text-lg font-semibold text-slate-900 inline-flex items-center gap-2">
+                        <Users2 className="h-4 w-4 text-cyan-700" /> Related Team Members
                     </h4>
                     <span className="rounded-full border border-white/60 bg-white/60 px-2.5 py-1 text-xs text-slate-600">
                         {relatedEmployees.length} people
                     </span>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                    {relatedEmployees.map((item, index) => (
-                        <div
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {relatedEmployees.map((item) => (
+                        <EmployeeListCard
                             key={item._id}
-                            data-aos="fade-up"
-                            data-aos-delay={Math.min(index * 40, 200)}
-                            data-aos-duration="360"
-                            data-aos-once="false"
-                        >
-                            <EmployeeCard
-                                employee={item}
-                                delay={0}
-                                compact
-                                onClick={(selected) => navigate(`/employees/${selected._id}`)}
-                            />
-                        </div>
+                            employee={item}
+                            compact
+                            onClick={(selected) => navigate(`/employees/${selected._id}`)}
+                        />
                     ))}
                 </div>
             </section>

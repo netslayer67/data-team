@@ -3,11 +3,9 @@ import { ArrowRight, Building2, List, Sparkles, StretchHorizontal, Users2 } from
 import { useNavigate } from 'react-router-dom';
 import { getEmployeesHierarchy, getSchoolOverview } from '../../../data/schoolData';
 import { InteractiveKpiCard } from '../../../components/InteractiveCard';
-import { queueAOSRefresh } from '../../../utils/aos';
 
 const RoleDistributionChart = lazy(() => import('../components/RoleDistributionChart'));
 const EmploymentTypeChart = lazy(() => import('../components/EmploymentTypeChart'));
-const ZodiacForecast = lazy(() => import('../components/ZodiacForecast'));
 
 const formatter = new Intl.NumberFormat('en-US');
 
@@ -55,17 +53,6 @@ const SchoolOverviewPage = () => {
         window.localStorage.setItem(DASHBOARD_DENSITY_KEY, density);
     }, [density]);
 
-    useEffect(() => {
-        const stopSoft = queueAOSRefresh({ hard: false, delay: 42 });
-        const stopFollowup = queueAOSRefresh({ hard: false, delay: 220 });
-        const stopLate = queueAOSRefresh({ hard: false, delay: 520 });
-        return () => {
-            stopSoft();
-            stopFollowup();
-            stopLate();
-        };
-    }, [density]);
-
     const setDensityMode = useCallback((mode) => {
         setDensity(mode === 'compact' ? 'compact' : 'comfortable');
     }, []);
@@ -106,7 +93,7 @@ const SchoolOverviewPage = () => {
                 className={`glass-surface relative overflow-hidden rounded-[28px] ${isCompact ? 'p-4 md:p-5' : 'p-5 md:p-7'}`}
                 data-aos="fade-up"
                 data-aos-duration="430"
-                data-aos-once="false"
+                data-aos-once="true"
                 data-aos-anchor-placement="top-bottom"
             >
                 <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-cyan-300/15 blur-3xl" />
@@ -155,14 +142,15 @@ const SchoolOverviewPage = () => {
                 </div>
             </section>
 
-            <section className={`grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4 ${isCompact ? 'gap-2.5 sm:gap-3' : 'gap-2.5 sm:gap-4'}`}>
+            <section className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-12 ${isCompact ? 'gap-2.5 sm:gap-3' : 'gap-2.5 sm:gap-4'}`}>
                 {metrics.map((item, index) => (
                     <div
                         key={item.label}
+                        className={index === 0 ? 'xl:col-span-6' : 'xl:col-span-3'}
                         data-aos="fade-up"
                         data-aos-delay={Math.min(50 + (index * 36), 220)}
                         data-aos-duration="410"
-                        data-aos-once="false"
+                        data-aos-once="true"
                         data-aos-anchor-placement="top-bottom"
                     >
                         <InteractiveKpiCard
@@ -183,7 +171,7 @@ const SchoolOverviewPage = () => {
                     data-aos="fade-up"
                     data-aos-delay="40"
                     data-aos-duration="430"
-                    data-aos-once="false"
+                    data-aos-once="true"
                     data-aos-anchor-placement="top-bottom"
                 >
                     <Suspense fallback={<section className="glass-surface rounded-3xl p-5 h-[280px]" />}>
@@ -195,7 +183,7 @@ const SchoolOverviewPage = () => {
                     data-aos="fade-up"
                     data-aos-delay="90"
                     data-aos-duration="430"
-                    data-aos-once="false"
+                    data-aos-once="true"
                     data-aos-anchor-placement="top-bottom"
                 >
                     <Suspense fallback={<section className="glass-surface rounded-3xl p-5 h-[280px]" />}>
@@ -208,7 +196,7 @@ const SchoolOverviewPage = () => {
                 data-aos="fade-up"
                 data-aos-delay="50"
                 data-aos-duration="430"
-                data-aos-once="false"
+                data-aos-once="true"
                 data-aos-anchor-placement="top-bottom"
             >
                 {/* <Suspense fallback={<section className="glass-surface rounded-3xl p-5 h-[280px]" />}>
@@ -221,7 +209,7 @@ const SchoolOverviewPage = () => {
                 data-aos="fade-up"
                 data-aos-delay="35"
                 data-aos-duration="410"
-                data-aos-once="false"
+                data-aos-once="true"
                 data-aos-anchor-placement="top-bottom"
             >
                 <div className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-teal-300/10 blur-3xl" />
@@ -239,7 +227,7 @@ const SchoolOverviewPage = () => {
                 </p>
 
                 <div className={`mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${isCompact ? 'gap-2.5' : 'gap-3'}`}>
-                    {(overview?.byUnit || []).map((unit, index) => {
+                    {(overview?.byUnit || []).map((unit) => {
                         const maxCount = Math.max(...(overview?.byUnit || []).map((u) => u.count), 1);
                         const pct = Math.round((unit.count / maxCount) * 100);
                         return (
@@ -248,11 +236,6 @@ const SchoolOverviewPage = () => {
                                 type="button"
                                 onClick={() => navigate(`/employees?unit=${encodeURIComponent(unit._id)}`)}
                                 className={`group relative overflow-hidden rounded-2xl border text-left transition-all hover:scale-[1.02] hover:shadow-md active:scale-[0.98] ${unitAccent[unit._id] || 'border-white/50 bg-white/50 text-slate-800'} ${isCompact ? 'px-3.5 py-3' : 'px-4 py-3.5'}`}
-                                data-aos="fade-up"
-                                data-aos-delay={Math.min(30 + (index * 28), 260)}
-                                data-aos-duration="380"
-                                data-aos-once="false"
-                                data-aos-anchor-placement="top-bottom"
                             >
                                 <div className="flex items-center justify-between gap-2">
                                     <span className={`font-semibold ${isCompact ? 'text-sm' : 'text-[15px]'}`}>{unit._id}</span>
@@ -276,7 +259,7 @@ const SchoolOverviewPage = () => {
                 data-aos="fade-up"
                 data-aos-delay="80"
                 data-aos-duration="410"
-                data-aos-once="false"
+                data-aos-once="true"
                 data-aos-anchor-placement="top-bottom"
             >
                 <div className="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full bg-amber-300/10 blur-3xl" />
@@ -290,15 +273,10 @@ const SchoolOverviewPage = () => {
                 </div>
 
                 <div className={`mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 ${isCompact ? 'gap-2.5' : 'gap-3'}`}>
-                    {hierarchy.map((group, index) => (
+                    {hierarchy.map((group) => (
                         <div
                             key={group.roleGroup}
                             className={`rounded-2xl border border-white/50 bg-white/50 ${isCompact ? 'px-3 py-2.5' : 'px-4 py-3.5'}`}
-                            data-aos="fade-up"
-                            data-aos-delay={Math.min(30 + (index * 24), 230)}
-                            data-aos-duration="360"
-                            data-aos-once="false"
-                            data-aos-anchor-placement="top-bottom"
                         >
                             <div className="flex items-center justify-between gap-3">
                                 <p className="font-semibold text-slate-900">{group.roleGroup}</p>
