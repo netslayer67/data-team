@@ -11,8 +11,8 @@ const employees = [
         "roleTitle": "Staff Resources",
         "roleGroup": "Support Staff",
         "employeeId": "10.05.174",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Kindergarten",
         "joinDate": "2005-01-31",
@@ -63,8 +63,8 @@ const employees = [
         "roleTitle": "Librarian",
         "roleGroup": "Staff",
         "employeeId": "15.25.821",
-        "department": "Directorate",
-        "unit": "Directorate",
+        "department": "BRIDGE",
+        "unit": "BRIDGE",
         "className": "",
         "building": "Elementary",
         "joinDate": "2025-02-07",
@@ -88,10 +88,10 @@ const employees = [
         "fullName": "Adiya Herisa",
         "username": "Adiya",
         "roleTitle": "School's Nurse",
-        "roleGroup": "Support Staff",
+        "roleGroup": "Staff",
         "employeeId": "15.23.737",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "CARE",
+        "unit": "CARE",
         "className": "",
         "building": "Elementary",
         "joinDate": "2023-09-04",
@@ -123,7 +123,7 @@ const employees = [
         "joinDate": "2025-04-08",
         "status": "Active",
         "email": "afiyanti.hardiansari@millennia21.id",
-        "birthDate": "25-Apr-1999",
+        "birthDate": "08-May-1999",
         "religion": "Christian",
         "gender": "F",
         "avatarColor": "#0891b2",
@@ -144,8 +144,8 @@ const employees = [
         "roleTitle": "Head of Operational",
         "roleGroup": "Head Unit",
         "employeeId": "10.17.581",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Elementary",
         "joinDate": "2017-11-14",
@@ -303,8 +303,8 @@ const employees = [
         "roleTitle": "PLH",
         "roleGroup": "Support Staff",
         "employeeId": "10.18.589",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Junior High",
         "joinDate": "2018-03-01",
@@ -502,7 +502,7 @@ const employees = [
         "joinDate": "2025-04-08",
         "status": "Active",
         "email": "nana@millennia21.id",
-        "birthDate": "26-Apr-1999",
+        "birthDate": "27-Mar-1999",
         "religion": "Christian",
         "gender": "F",
         "avatarColor": "#0891b2",
@@ -547,8 +547,8 @@ const employees = [
         "roleTitle": "Driver",
         "roleGroup": "Support Staff",
         "employeeId": "15.25.868",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Junior High",
         "joinDate": "2025-09-22",
@@ -574,8 +574,8 @@ const employees = [
         "roleTitle": "Office Boy",
         "roleGroup": "Support Staff",
         "employeeId": "15.25.874",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Elementary",
         "joinDate": "2025-10-24",
@@ -710,8 +710,8 @@ const employees = [
         "roleTitle": "Office Girl",
         "roleGroup": "Support Staff",
         "employeeId": "10.22.666",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Junior High",
         "joinDate": "2022-05-25",
@@ -790,8 +790,8 @@ const employees = [
         "roleTitle": "Office Girl",
         "roleGroup": "Support Staff",
         "employeeId": "15.24.797",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Elementary",
         "joinDate": "2024-07-26",
@@ -878,7 +878,7 @@ const employees = [
         "joinDate": "2025-04-24",
         "status": "Active",
         "email": "fasa@millennia21.id",
-        "birthDate": "29-Apr-1999",
+        "birthDate": "11-Jul-1999",
         "religion": "Islam",
         "gender": "F",
         "avatarColor": "#0d9488",
@@ -922,11 +922,11 @@ const employees = [
         "_id": "emp-035",
         "fullName": "Fayza Julia Pramesti Hapsari Prayoga",
         "username": "Jo",
-        "roleTitle": "Admin Pelangi / Secretary",
+        "roleTitle": "Admin R.I.S.E / Secretary",
         "roleGroup": "Staff",
         "employeeId": "15.25.856",
-        "department": "Pelangi",
-        "unit": "Pelangi",
+        "department": "RISE",
+        "unit": "RISE",
         "className": "",
         "building": "Kindergarten",
         "joinDate": "2025-08-15",
@@ -958,7 +958,7 @@ const employees = [
         "joinDate": "2025-04-08",
         "status": "Active",
         "email": "ferlyna.balqis@millennia21.id",
-        "birthDate": "27-Apr-1999",
+        "birthDate": "01-Jul-1999",
         "religion": "Islam",
         "gender": "F",
         "avatarColor": "#0d9488",
@@ -998,33 +998,33 @@ const employees = [
         ],
         "highlights": []
     },
-    {
-        "_id": "emp-038",
-        "fullName": "Galen Rasendriya",
-        "username": "Galen",
-        "roleTitle": "Special Education Teacher",
-        "roleGroup": "SE Teacher",
-        "employeeId": "14.25.849",
-        "department": "Elementary",
-        "unit": "Elementary",
-        "className": "Grade 3 Sombrero",
-        "building": "Elementary",
-        "joinDate": "2025-07-28",
-        "status": "Probation",
-        "email": "galen@millennia21.id",
-        "birthDate": "12-Jun-2000",
-        "religion": "Islam",
-        "gender": "M",
-        "avatarColor": "#0d9488",
-        "photoUrl": "https://res.cloudinary.com/deldcwiji/image/upload/v1770779812/DSC02176_phbqh4.jpg",
-        "photos": [
-            "https://res.cloudinary.com/deldcwiji/image/upload/v1770779812/DSC02176_phbqh4.jpg",
-            "https://res.cloudinary.com/deldcwiji/image/upload/v1770779812/DSC02178_kahsck.jpg",
-            "https://res.cloudinary.com/deldcwiji/image/upload/v1770779813/DSC02179_lm3yao.jpg"
-        ],
-        "highlights": [],
-        "endDate": "2026-06-22"
-    },
+    // {
+    //     "_id": "emp-038",
+    //     "fullName": "Galen Rasendriya",
+    //     "username": "Galen",
+    //     "roleTitle": "Special Education Teacher",
+    //     "roleGroup": "SE Teacher",
+    //     "employeeId": "14.25.849",
+    //     "department": "Elementary",
+    //     "unit": "Elementary",
+    //     "className": "Grade 3 Sombrero",
+    //     "building": "Elementary",
+    //     "joinDate": "2025-07-28",
+    //     "status": "Inactive",
+    //     "email": "galen@millennia21.id",
+    //     "birthDate": "12-Jun-2000",
+    //     "religion": "Islam",
+    //     "gender": "M",
+    //     "avatarColor": "#0d9488",
+    //     "photoUrl": "https://res.cloudinary.com/deldcwiji/image/upload/v1770779812/DSC02176_phbqh4.jpg",
+    //     "photos": [
+    //         "https://res.cloudinary.com/deldcwiji/image/upload/v1770779812/DSC02176_phbqh4.jpg",
+    //         "https://res.cloudinary.com/deldcwiji/image/upload/v1770779812/DSC02178_kahsck.jpg",
+    //         "https://res.cloudinary.com/deldcwiji/image/upload/v1770779813/DSC02179_lm3yao.jpg"
+    //     ],
+    //     "highlights": [],
+    //     "endDate": "2026-06-22"
+    // },
     {
         "_id": "emp-039",
         "fullName": "Gebby Rika Amdani",
@@ -1032,8 +1032,8 @@ const employees = [
         "roleTitle": "Office Girl",
         "roleGroup": "Support Staff",
         "employeeId": "15.25.877",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Elementary",
         "joinDate": "2025-11-14",
@@ -1109,11 +1109,11 @@ const employees = [
         "_id": "emp-042",
         "fullName": "Hana Nuzula Fajria",
         "username": "Hana",
-        "roleTitle": "Head of Pelangi",
+        "roleTitle": "Head of R.I.S.E",
         "roleGroup": "Head Unit",
         "employeeId": "14.19.626",
-        "department": "Pelangi",
-        "unit": "Pelangi",
+        "department": "RISE",
+        "unit": "RISE",
         "className": "",
         "building": "Kindergarten",
         "joinDate": "2019-09-02",
@@ -1163,11 +1163,11 @@ const employees = [
         "_id": "emp-044",
         "fullName": "Ian Ahmad Fauzi",
         "username": "Ian",
-        "roleTitle": "Staff Finance",
+        "roleTitle": "Staff S.A.F.E",
         "roleGroup": "Staff",
         "employeeId": "15.25.863",
-        "department": "Finance",
-        "unit": "Finance",
+        "department": "SAFE",
+        "unit": "SAFE",
         "className": "",
         "building": "Junior High",
         "joinDate": "2025-10-08",
@@ -1249,8 +1249,8 @@ const employees = [
         "roleTitle": "Driver",
         "roleGroup": "Support Staff",
         "employeeId": "10.17.557",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Junior High",
         "joinDate": "2017-03-02",
@@ -1275,8 +1275,8 @@ const employees = [
         "roleTitle": "Office Boy",
         "roleGroup": "Support Staff",
         "employeeId": "10.19.616",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Junior High",
         "joinDate": "2019-06-17",
@@ -1356,8 +1356,8 @@ const employees = [
         "roleTitle": "Office Boy",
         "roleGroup": "Support Staff",
         "employeeId": "10.18.600",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Elementary",
         "joinDate": "2018-09-24",
@@ -1405,7 +1405,7 @@ const employees = [
     {
         "_id": "emp-053",
         "fullName": "Mahrukh Bashir",
-        "username": "Mahrukh",
+        "username": "Ms. Mahrukh",
         "roleTitle": "Academic Director",
         "roleGroup": "Director",
         "employeeId": "12.10.374",
@@ -1463,8 +1463,8 @@ const employees = [
         "roleTitle": "Librarian",
         "roleGroup": "Staff",
         "employeeId": "15.25.859",
-        "department": "Directorate",
-        "unit": "Directorate",
+        "department": "BRIDGE",
+        "unit": "BRIDGE",
         "className": "",
         "building": "Junior High",
         "joinDate": "2025-08-25",
@@ -1493,7 +1493,7 @@ const employees = [
         "department": "Directorate",
         "unit": "Directorate",
         "className": "",
-        "building": "Elementary",
+        "building": "Kindergarten",
         "joinDate": "2025-08-25",
         "status": "Probation",
         "email": "muhammad.farhan@millennia21.id",
@@ -1517,8 +1517,8 @@ const employees = [
         "roleTitle": "Office Boy",
         "roleGroup": "Support Staff",
         "employeeId": "15.24.756",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Junior High",
         "joinDate": "2024-02-23",
@@ -1544,8 +1544,8 @@ const employees = [
         "roleTitle": "PLH",
         "roleGroup": "Support Staff",
         "employeeId": "15.25.845",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Junior High",
         "joinDate": "2025-07-18",
@@ -1571,8 +1571,8 @@ const employees = [
         "roleTitle": "IT Support",
         "roleGroup": "Support Staff",
         "employeeId": "15.25.838",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "MAD Lab",
+        "unit": "MAD Lab",
         "className": "",
         "building": "Junior High",
         "joinDate": "2025-07-14",
@@ -1597,9 +1597,9 @@ const employees = [
         "roleTitle": "PLH",
         "roleGroup": "Support Staff",
         "employeeId": "15.23.734",
-        "department": "Operational",
-        "unit": "Operational",
-        "className": "",
+        "department": "SHIELD",
+        "unit": "SHIELD",
+        "className": "Grade 7 Helix",
         "building": "Junior High",
         "joinDate": "2023-08-28",
         "status": "Active",
@@ -1630,7 +1630,7 @@ const employees = [
         "joinDate": "2024-11-18",
         "status": "Active",
         "email": "nadiamws@millennia21.id",
-        "birthDate": "10-Nov-1991",
+        "birthDate": "08-Oct-1991",
         "religion": "Islam",
         "gender": "F",
         "avatarColor": "#0891b2",
@@ -1867,7 +1867,7 @@ const employees = [
         "_id": "emp-070",
         "fullName": "Nur Muhamad Ismail",
         "username": "Ismail",
-        "roleTitle": "Staff C.A.R.E",
+        "roleTitle": "Staff CARE",
         "roleGroup": "Staff",
         "employeeId": "15.25.858",
         "department": "CARE",
@@ -2033,8 +2033,8 @@ const employees = [
         "roleTitle": "Office Boy",
         "roleGroup": "Support Staff",
         "employeeId": "15.25.873",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Elementary",
         "joinDate": "2025-10-20",
@@ -2281,14 +2281,15 @@ const employees = [
     //     "className": "",
     //     "building": "",
     //     "joinDate": "2025-09-08",
-    //     "status": "Probation",
+    //     "status": "Active",
     //     "email": "kiki@millennia21.id",
     //     "birthDate": "05-Dec-1994",
     //     "religion": "Islam",
     //     "gender": "F",
     //     "avatarColor": "#0ea5e9",
-    //     "highlights": [],
-    //     "endDate": "2026-06-22"
+    //     "photoUrl": "",
+    //     "photos": [],
+    //     "highlights": []
     // },
     {
         "_id": "emp-086",
@@ -2299,8 +2300,8 @@ const employees = [
         "employeeId": "14.23.736",
         "department": "Junior High",
         "unit": "Junior High",
-        "className": "Grade 8 Cartwheel",
-        "building": "Junior High",
+        "className": "",
+        "building": "Elementary",
         "joinDate": "2023-09-04",
         "status": "Active",
         "email": "rizkinurul@millennia21.id",
@@ -2323,8 +2324,8 @@ const employees = [
         "roleTitle": "Office Boy",
         "roleGroup": "Support Staff",
         "employeeId": "15.24.762",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Elementary",
         "joinDate": "2024-06-19",
@@ -2377,8 +2378,8 @@ const employees = [
         "roleTitle": "Office Girl",
         "roleGroup": "Support Staff",
         "employeeId": "15.23.723",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Kindergarten",
         "joinDate": "2023-07-10",
@@ -2403,8 +2404,8 @@ const employees = [
         "roleTitle": "Office Boy",
         "roleGroup": "Support Staff",
         "employeeId": "15.23.707",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Junior High",
         "joinDate": "2023-04-03",
@@ -2450,42 +2451,42 @@ const employees = [
         ],
         "highlights": []
     },
-    {
-        "_id": "emp-092",
-        "fullName": "Salsabila Dhiyaussyifa Laela",
-        "username": "Sabil",
-        "roleTitle": "Special Education Teacher",
-        "roleGroup": "SE Teacher",
-        "employeeId": "14.24.770",
-        "department": "Elementary",
-        "unit": "Elementary",
-        "className": "Grade 3 Sombrero",
-        "building": "Elementary",
-        "joinDate": "2024-06-24",
-        "status": "Active",
-        "email": "salsabiladhiyaussyifa@millennia21.id",
-        "birthDate": "06-May-1998",
-        "religion": "Islam",
-        "gender": "F",
-        "avatarColor": "#0d9488",
-        "photoUrl": "https://res.cloudinary.com/deldcwiji/image/upload/v1770780057/DSC04537_vwzyqu.jpg",
-        "photos": [
-            "https://res.cloudinary.com/deldcwiji/image/upload/v1770780057/DSC04537_vwzyqu.jpg",
-            "https://res.cloudinary.com/deldcwiji/image/upload/v1770780070/DSC04538_cmeayl.jpg",
-            "https://res.cloudinary.com/deldcwiji/image/upload/v1770780070/DSC04539_kaeyuw.jpg"
-        ],
-        "highlights": [],
-        "endDate": "2026-06-22"
-    },
+    // {
+    //     "_id": "emp-092",
+    //     "fullName": "Salsabila Dhiyaussyifa Laela",
+    //     "username": "Sabil",
+    //     "roleTitle": "Special Education Teacher",
+    //     "roleGroup": "SE Teacher",
+    //     "employeeId": "14.24.770",
+    //     "department": "Elementary",
+    //     "unit": "Elementary",
+    //     "className": "Grade 3 Sombrero",
+    //     "building": "Elementary",
+    //     "joinDate": "2024-06-24",
+    //     "status": "Inactive",
+    //     "email": "salsabiladhiyaussyifa@millennia21.id",
+    //     "birthDate": "06-May-1998",
+    //     "religion": "Islam",
+    //     "gender": "F",
+    //     "avatarColor": "#0d9488",
+    //     "photoUrl": "https://res.cloudinary.com/deldcwiji/image/upload/v1770780057/DSC04537_vwzyqu.jpg",
+    //     "photos": [
+    //         "https://res.cloudinary.com/deldcwiji/image/upload/v1770780057/DSC04537_vwzyqu.jpg",
+    //         "https://res.cloudinary.com/deldcwiji/image/upload/v1770780070/DSC04538_cmeayl.jpg",
+    //         "https://res.cloudinary.com/deldcwiji/image/upload/v1770780070/DSC04539_kaeyuw.jpg"
+    //     ],
+    //     "highlights": [],
+    //     "endDate": "2026-06-22"
+    // },
     {
         "_id": "emp-093",
         "fullName": "Sarah Yuliana",
         "username": "Sarah",
-        "roleTitle": "Head of Finance",
+        "roleTitle": "Head of S.A.F.E",
         "roleGroup": "Head Unit",
         "employeeId": "10.20.636",
-        "department": "Finance",
-        "unit": "Finance",
+        "department": "SAFE",
+        "unit": "SAFE",
         "className": "",
         "building": "Junior High",
         "joinDate": "2020-06-24",
@@ -2564,8 +2565,8 @@ const employees = [
         "roleTitle": "Staff CRM",
         "roleGroup": "Staff",
         "employeeId": "15.24.813",
-        "department": "Directorate",
-        "unit": "Directorate",
+        "department": "COMPASS",
+        "unit": "COMPASS",
         "className": "",
         "building": "Junior High",
         "joinDate": "2024-11-01",
@@ -2614,11 +2615,11 @@ const employees = [
         "_id": "emp-098",
         "fullName": "Tien Hadiningsih",
         "username": "Hanny",
-        "roleTitle": "Staff CRM",
-        "roleGroup": "Staff",
+        "roleTitle": "C.O.M.P.A.S.S Coordinator",
+        "roleGroup": "Head Unit",
         "employeeId": "12.15.512",
-        "department": "Directorate",
-        "unit": "Directorate",
+        "department": "COMPASS",
+        "unit": "COMPASS",
         "className": "",
         "building": "Junior High",
         "joinDate": "2015-07-27",
@@ -2698,8 +2699,8 @@ const employees = [
         "roleTitle": "Driver",
         "roleGroup": "Support Staff",
         "employeeId": "10.17.575",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Junior High",
         "joinDate": "2017-09-06",
@@ -2717,34 +2718,34 @@ const employees = [
         ],
         "highlights": []
     },
-    {
-        "_id": "emp-102",
-        "fullName": "Usep Saefurohman",
-        "username": "Usep",
-        "roleTitle": "Driver",
-        "roleGroup": "Support Staff",
-        "employeeId": "15.25.848",
-        "department": "Operational",
-        "unit": "Operational",
-        "className": "",
-        "building": "Junior High",
-        "joinDate": "2025-07-17",
-        "status": "Probation",
-        "email": "usep@millennia21.id",
-        "birthDate": "12-Jul-1993",
-        "religion": "Islam",
-        "gender": "M",
-        "avatarColor": "#64748b",
-        "photoUrl": "https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1781_ejjknw.jpg",
-        "photos": [
-            "https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1781_ejjknw.jpg",
-            "https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1783_nrh9fy.jpg",
-            "https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1784_ghpelq.jpg",
-            "https://res.cloudinary.com/deldcwiji/image/upload/v1770779803/_DSC1787_a8ahgl.jpg"
-        ],
-        "highlights": [],
-        "endDate": "2026-06-22"
-    },
+    // {
+    //     "_id": "emp-102",
+    //     "fullName": "Usep Saefurohman",
+    //     "username": "Usep",
+    //     "roleTitle": "Driver",
+    //     "roleGroup": "Support Staff",
+    //     "employeeId": "15.25.848",
+    //     "department": "Operational",
+    //     "unit": "Operational",
+    //     "className": "",
+    //     "building": "Junior High",
+    //     "joinDate": "2025-07-17",
+    //     "status": "Inactive",
+    //     "email": "usep@millennia21.id",
+    //     "birthDate": "12-Jul-1993",
+    //     "religion": "Islam",
+    //     "gender": "M",
+    //     "avatarColor": "#64748b",
+    //     "photoUrl": "https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1781_ejjknw.jpg",
+    //     "photos": [
+    //         "https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1781_ejjknw.jpg",
+    //         "https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1783_nrh9fy.jpg",
+    //         "https://res.cloudinary.com/deldcwiji/image/upload/v1770779802/_DSC1784_ghpelq.jpg",
+    //         "https://res.cloudinary.com/deldcwiji/image/upload/v1770779803/_DSC1787_a8ahgl.jpg"
+    //     ],
+    //     "highlights": [],
+    //     "endDate": "2026-06-22"
+    // },
     {
         "_id": "emp-103",
         "fullName": "Vicki Aprinando",
@@ -2782,7 +2783,7 @@ const employees = [
         "department": "Kindergarten",
         "unit": "Kindergarten",
         "className": "",
-        "building": "Kindergarten",
+        "building": "Junior High",
         "joinDate": "2019-07-09",
         "status": "Active",
         "email": "vinka@millennia21.id",
@@ -2807,10 +2808,10 @@ const employees = [
         "roleTitle": "PLH",
         "roleGroup": "Support Staff",
         "employeeId": "15.25.872",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
-        "building": "Junior High",
+        "building": "Kindergarten",
         "joinDate": "2025-10-20",
         "status": "Probation",
         "email": "wahyu@millennia21.id",
@@ -2833,8 +2834,8 @@ const employees = [
         "roleTitle": "Office Girl",
         "roleGroup": "Support Staff",
         "employeeId": "15.25.867",
-        "department": "Operational",
-        "unit": "Operational",
+        "department": "SHIELD",
+        "unit": "SHIELD",
         "className": "",
         "building": "Kindergarten",
         "joinDate": "2025-09-18",
@@ -2960,6 +2961,94 @@ const employees = [
             "https://res.cloudinary.com/deldcwiji/image/upload/v1770780015/DSC04470_w5g8a3.jpg"
         ],
         "highlights": []
+    },
+    {
+        "_id": "emp-111",
+        "fullName": "Muhamad Fikri Firmansyah",
+        "username": "Fikri",
+        "roleTitle": "Special Education Teacher",
+        "roleGroup": "SE Teacher",
+        "employeeId": "emp-111",
+        "department": "Elementary",
+        "unit": "Elementary",
+        "className": "Grade 3 Sombrero",
+        "building": "Elementary",
+        "joinDate": "2026-05-06",
+        "status": "Active",
+        "email": "fikri@millennia21.id",
+        "birthDate": "02-Jun",
+        "religion": "Islam",
+        "gender": "M",
+        "avatarColor": "#0d9488",
+        "photoUrl": "",
+        "photos": [],
+        "highlights": []
+    },
+    {
+        "_id": "emp-112",
+        "fullName": "Vickry Firmansyah",
+        "username": "Vickry",
+        "roleTitle": "Driver",
+        "roleGroup": "Support Staff",
+        "employeeId": "15.26.881",
+        "department": "SHIELD",
+        "unit": "SHIELD",
+        "className": "",
+        "building": "Kindergarten",
+        "joinDate": "2026-04-08",
+        "status": "Active",
+        "email": "vickry@millennia21.id",
+        "birthDate": "13-May",
+        "religion": "Islam",
+        "gender": "M",
+        "avatarColor": "#64748b",
+        "photoUrl": "",
+        "photos": [],
+        "highlights": []
+    },
+    {
+        "_id": "emp-113",
+        "fullName": "Muhammad Ubaidillah Masrur",
+        "username": "Ubai",
+        "roleTitle": "Special Education Teacher",
+        "roleGroup": "SE Teacher",
+        "employeeId": "14.26.884",
+        "department": "Junior High",
+        "unit": "Junior High",
+        "className": "Grade 8 Cartwheel",
+        "building": "Junior High",
+        "joinDate": "2026-04-15",
+        "status": "Active",
+        "email": "ubaidillah@millennia21.id",
+        "birthDate": "14-May",
+        "religion": "Islam",
+        "gender": "M",
+        "avatarColor": "#0d9488",
+        "photoUrl": "",
+        "photos": [],
+        "highlights": []
+    },
+    {
+        "_id": "emp-114",
+        "fullName": "Zahra Al-jamil As Sa'diyah",
+        "username": "Ara",
+        "roleTitle": "Special Education Teacher",
+        "roleGroup": "SE Teacher",
+        "employeeId": "14.26.885",
+        "department": "Elementary",
+        "unit": "Elementary",
+        "className": "Grade 3 Sombrero",
+        "building": "Elementary",
+        "joinDate": "2026-04-21",
+        "status": "Active",
+        "email": "zahra@millennia21.id",
+        "birthDate": "15-Feb",
+        "religion": "Islam",
+        "gender": "F",
+        "avatarColor": "#0d9488",
+        "photoUrl": "",
+        "photos": [],
+        "highlights": []
     }
 ];
 
@@ -2972,46 +3061,10 @@ const LEGACY_UNIT_MAP = {
 const getMappedUnit = (employee) => {
     if (!employee) return '';
 
-    if (employee.roleGroup === 'Support Staff') return 'SHIELD';
-
-    const roleTitle = String(employee.roleTitle || '').toLowerCase();
     const unit = LEGACY_UNIT_MAP[employee.unit] || employee.unit;
     const department = LEGACY_UNIT_MAP[employee.department] || employee.department;
 
-    if (roleTitle.includes('finance') || unit === 'SAFE' || department === 'SAFE') {
-        return 'SAFE';
-    }
-
-    if (
-        roleTitle.includes('c.a.r.e')
-        || unit === 'CARE'
-        || department === 'CARE'
-    ) {
-        return 'CARE';
-    }
-
-    if (
-        roleTitle.includes('crm')
-        || roleTitle.includes('compass')
-        || unit === 'COMPASS'
-        || department === 'COMPASS'
-    ) {
-        return 'COMPASS';
-    }
-
-    if (
-        roleTitle.includes('research')
-        || roleTitle.includes('development')
-        || roleTitle.includes('litbang')
-        || roleTitle.includes('training')
-        || roleTitle.includes('librarian')
-        || unit === 'BRIDGE'
-        || department === 'BRIDGE'
-    ) {
-        return 'BRIDGE';
-    }
-
-    return unit;
+    return unit || department;
 };
 
 employees.forEach((employee) => {
@@ -3025,31 +3078,6 @@ employees.forEach((employee) => {
         employee.secondaryUnit = 'RISE';
     }
 
-    if (employee.fullName === 'Faisal Nur Hidayat') {
-        employee.roleTitle = 'Head of M.A.D LAB';
-        employee.roleGroup = 'Head Unit';
-        employee.unit = 'MAD Lab';
-        employee.department = 'MAD Lab';
-    }
-
-    if (employee.fullName === 'Tien Hadiningsih') {
-        employee.roleGroup = 'Head Unit';
-        employee.roleTitle = 'C.O.M.P.A.S.S Coordinator';
-        employee.unit = 'COMPASS';
-        employee.department = 'COMPASS';
-    }
-
-    if (employee.fullName === 'Ahmad Haikal') {
-        employee.roleTitle = 'Head of S.H.I.E.L.D';
-    }
-
-    if (employee.fullName === 'Hana Nuzula Fajria') {
-        employee.roleTitle = 'Head of R.I.S.E';
-    }
-
-    if (employee.fullName === 'Sarah Yuliana') {
-        employee.roleTitle = 'Head of S.A.F.E';
-    }
 });
 
 const uniqueSorted = (items, order = []) => {
@@ -3216,6 +3244,21 @@ const applyFilters = (filters = {}) => {
     });
 };
 
+const sortEmployeesForDirectory = (list = []) => {
+    const roleIndexMap = new Map(ROLE_GROUP_ORDER.map((role, index) => [role, index]));
+
+    return [...list].sort((left, right) => {
+        const leftRoleIndex = roleIndexMap.get(left.roleGroup) ?? ROLE_GROUP_ORDER.length;
+        const rightRoleIndex = roleIndexMap.get(right.roleGroup) ?? ROLE_GROUP_ORDER.length;
+
+        if (leftRoleIndex !== rightRoleIndex) {
+            return leftRoleIndex - rightRoleIndex;
+        }
+
+        return left.fullName.localeCompare(right.fullName, 'en-US');
+    });
+};
+
 export const getSchoolOverview = () => {
     const totalEmployees = employees.length;
     const activeEmployees = employees.filter((employee) => employee.status === 'Active').length;
@@ -3263,6 +3306,50 @@ export const getEmployeesHierarchy = (filters = {}) => {
             members
         };
     });
+};
+
+export const getEmployeeDirectoryPage = (filters = {}, options = {}) => {
+    const requestedPage = Number(options.page) || 1;
+    const requestedLimit = Number(options.limit) || 24;
+    const pageSize = Math.max(1, requestedLimit);
+    const filteredEmployees = sortEmployeesForDirectory(applyFilters(filters));
+    const totalRecords = filteredEmployees.length;
+    const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+    const currentPage = Math.min(Math.max(1, requestedPage), totalPages);
+    const startIndex = (currentPage - 1) * pageSize;
+    const pageEmployees = filteredEmployees.slice(startIndex, startIndex + pageSize);
+
+    const totalByRole = filteredEmployees.reduce((accumulator, employee) => {
+        accumulator[employee.roleGroup] = (accumulator[employee.roleGroup] || 0) + 1;
+        return accumulator;
+    }, {});
+
+    const pageGroups = ROLE_GROUP_ORDER.map((roleGroup) => {
+        const members = pageEmployees.filter((employee) => employee.roleGroup === roleGroup);
+        if (!members.length) return null;
+
+        return {
+            roleGroup,
+            total: members.length,
+            overallTotal: totalByRole[roleGroup] || 0,
+            members
+        };
+    }).filter(Boolean);
+
+    return {
+        groups: pageGroups,
+        pagination: {
+            currentPage,
+            pageSize,
+            totalPages,
+            totalRecords,
+            pageRecords: pageEmployees.length,
+            startRecord: totalRecords === 0 ? 0 : startIndex + 1,
+            endRecord: totalRecords === 0 ? 0 : startIndex + pageEmployees.length,
+            hasPreviousPage: currentPage > 1,
+            hasNextPage: currentPage < totalPages
+        }
+    };
 };
 
 export const getEmployees = (filters = {}) => {
